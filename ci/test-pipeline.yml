@@ -1,0 +1,16 @@
+resources:
+- name: test-resource
+  type: git
+  source:
+    uri: https://github.com/mcchow/CSS432_21W_The-Game.git
+    branch: concourse-ci-setup
+    username: joshua-sterner
+    password: ((github-pw))
+
+jobs:
+- name: job-test-build
+  public: true
+  plan:
+  - get: test-resource
+  - task: test-build
+    file: task_test_build.yml

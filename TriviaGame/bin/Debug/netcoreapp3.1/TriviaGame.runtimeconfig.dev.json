@@ -1,0 +1,8 @@
+{
+  "runtimeOptions": {
+    "additionalProbingPaths": [
+      "C:\\Users\\deafening_void\\.dotnet\\store\\|arch|\\|tfm|",
+      "C:\\Users\\deafening_void\\.nuget\\packages"
+    ]
+  }
+}
