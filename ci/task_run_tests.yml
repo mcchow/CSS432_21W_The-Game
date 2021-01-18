@@ -8,8 +8,8 @@ image_resource:
     tag: 3.1
 
 inputs:
-- name: resource-test
+- name: resource-repo
 
 run:
   path: dotnet
-  args: ["test", "resource-test/"]
+  args: ["test", ((test_path))]

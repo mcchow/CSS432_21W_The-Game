@@ -1,17 +1,24 @@
 resources:
-- name: resource-test
+- name: resource-repo
   type: git
   source:
     uri: https://github.com/mcchow/CSS432_21W_The-Game.git
-    branch: concourse-ci-setup
+    branch: dev
     username: joshua-sterner
     password: ((github-pw))
 
 jobs:
-- name: job-test-build
+- name: run-tests
   public: true
   plan:
-  - get: resource-test
+  - get: resource-repo
     trigger: true
-  - task: test-build
-    file: resource-test/ci/task_test_build.yml
+  - in_parallel:
+    - task: run-client-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/TriviaGameClientTests"
+    - task: run-server-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/TriviaGameServerTests"
