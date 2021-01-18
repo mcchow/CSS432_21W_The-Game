@@ -13,9 +13,8 @@ namespace TriviaGameServerTests
         }
 
         [Fact]
-        public void Test2ShouldFail()
+        public void Test2ShouldPass()
         {
-            Assert.Equal(4, Program.foo());
         }
     }
 }

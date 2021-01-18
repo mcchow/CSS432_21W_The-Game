@@ -12,5 +12,6 @@ jobs:
   public: true
   plan:
   - get: resource-test
+    trigger: true
   - task: test-build
     file: resource-test/ci/task_test_build.yml
