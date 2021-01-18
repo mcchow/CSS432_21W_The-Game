@@ -3,7 +3,7 @@ resources:
   type: git
   source:
     uri: https://github.com/mcchow/CSS432_21W_The-Game.git
-    branch: dev
+    branch: ((branch))
     username: joshua-sterner
     password: ((github-pw))
 
