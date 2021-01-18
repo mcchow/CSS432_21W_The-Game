@@ -5,8 +5,11 @@ image_resource:
   type: docker-image
   source:
     repository: "mcr.microsoft.com/dotnet/sdk"
-    tag: "3.1.302"
+    tag: 3.1
+
+inputs:
+- name: resource-test
 
 run:
   path: dotnet
-  args: ["test"]
+  args: ["test", "resource-test/"]

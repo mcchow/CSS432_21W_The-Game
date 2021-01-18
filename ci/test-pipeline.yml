@@ -1,5 +1,5 @@
 resources:
-- name: test-resource
+- name: resource-test
   type: git
   source:
     uri: https://github.com/mcchow/CSS432_21W_The-Game.git
@@ -11,6 +11,6 @@ jobs:
 - name: job-test-build
   public: true
   plan:
-  - get: test-resource
+  - get: resource-test
   - task: test-build
-    file: task_test_build.yml
+    file: resource-test/ci/task_test_build.yml
