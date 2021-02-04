@@ -1,11 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "qwLPQ/m06hKFA7SPBJQcnt/W0n9Bmyeglul9DiCNyCp0zkVnakSsuurtZ2jLANhsaDTUgEvMal+1nD8CP03ZyA==",
+  "dgSpecHash": "aGicd+KaV2nylRGac8un00roiDrTcqWUYnZhngxCSPCrkj4ctWknLlAiWzIbev6KW4xPuC0NVmIWtKJ0Cd0Ryg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
+  "projectFilePath": "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\deafening_void\\.nuget\\packages\\monogame.content.builder.task\\3.8.0.1641\\monogame.content.builder.task.3.8.0.1641.nupkg.sha512",
-    "C:\\Users\\deafening_void\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.0.1641\\monogame.framework.desktopgl.3.8.0.1641.nupkg.sha512"
+    "C:\\Users\\mc264\\.nuget\\packages\\monogame.content.builder.task\\3.8.0.1641\\monogame.content.builder.task.3.8.0.1641.nupkg.sha512",
+    "C:\\Users\\mc264\\.nuget\\packages\\monogame.framework.desktopgl\\3.8.0.1641\\monogame.framework.desktopgl.3.8.0.1641.nupkg.sha512"
   ],
   "logs": []
 }
