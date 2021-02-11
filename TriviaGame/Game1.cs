@@ -1,6 +1,9 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Net.Sockets;
+using System.Net;
+using System.Text;
 
 namespace TriviaGame
 {
@@ -8,6 +11,7 @@ namespace TriviaGame
     {
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
+        private Socket sd;
 
         public Game1()
         {
@@ -19,6 +23,16 @@ namespace TriviaGame
         protected override void Initialize()
         {
             // TODO: Add your initialization logic here
+
+            sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
+            IPAddress serverIP = serverHostEntry.AddressList[0];
+            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8080);
+            sd.Connect(serverEndPoint);
+
+            byte[] message = Encoding.UTF8.GetBytes("Message from client!");
+
+            sd.Send(message);
 
             base.Initialize();
         }
