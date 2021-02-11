@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30330.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriviaGameClient", "TriviaGame\TriviaGameClient.csproj", "{BCA3A3E8-7A9E-4561-B697-B9F2D69777B4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriviaGameClient", "TriviaGame\TriviaGameClient.csproj", "{BCA3A3E8-7A9E-4561-B697-B9F2D69777B4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriviaGameServer", "TriviaGameServer\TriviaGameServer.csproj", "{FEDF9999-0D9B-41EA-BA56-FE838F712055}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriviaGameServer", "TriviaGameServer\TriviaGameServer.csproj", "{FEDF9999-0D9B-41EA-BA56-FE838F712055}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriviaGameServerTests", "TriviaGameServerTests\TriviaGameServerTests.csproj", "{B9C3FB1A-4430-4621-BA07-31C44B8D5F67}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriviaGameServerTests", "TriviaGameServerTests\TriviaGameServerTests.csproj", "{B9C3FB1A-4430-4621-BA07-31C44B8D5F67}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriviaGameClientTests", "TriviaGameClientTests\TriviaGameClientTests.csproj", "{BBED10B0-0190-49A9-8920-3ED5246BB995}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriviaGameClientTests", "TriviaGameClientTests\TriviaGameClientTests.csproj", "{BBED10B0-0190-49A9-8920-3ED5246BB995}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TriviaGameProtocol", "TriviaGameProtocol\TriviaGameProtocol.csproj", "{6C6DD811-211F-46AD-9D80-EAED6E825775}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TriviaGameProtocolTests", "ProtocolTests\TriviaGameProtocolTests.csproj", "{7EF107F7-0333-4ADB-AC8B-313FC57D2B59}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +37,14 @@ Global
 		{BBED10B0-0190-49A9-8920-3ED5246BB995}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BBED10B0-0190-49A9-8920-3ED5246BB995}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BBED10B0-0190-49A9-8920-3ED5246BB995}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6C6DD811-211F-46AD-9D80-EAED6E825775}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C6DD811-211F-46AD-9D80-EAED6E825775}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C6DD811-211F-46AD-9D80-EAED6E825775}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C6DD811-211F-46AD-9D80-EAED6E825775}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EF107F7-0333-4ADB-AC8B-313FC57D2B59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EF107F7-0333-4ADB-AC8B-313FC57D2B59}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EF107F7-0333-4ADB-AC8B-313FC57D2B59}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EF107F7-0333-4ADB-AC8B-313FC57D2B59}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

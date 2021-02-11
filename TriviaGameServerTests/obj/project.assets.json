@@ -5639,19 +5639,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\mc264\\.nuget\\packages\\": {}
+    "C:\\Users\\deafening_void\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGameServerTests\\TriviaGameServerTests.csproj",
+      "projectUniqueName": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServerTests\\TriviaGameServerTests.csproj",
       "projectName": "TriviaGameServerTests",
-      "projectPath": "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGameServerTests\\TriviaGameServerTests.csproj",
-      "packagesPath": "C:\\Users\\mc264\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGameServerTests\\obj\\",
+      "projectPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServerTests\\TriviaGameServerTests.csproj",
+      "packagesPath": "C:\\Users\\deafening_void\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServerTests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\mc264\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\deafening_void\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -5663,10 +5663,9 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
-          "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj": {
-              "projectPath": "C:\\Users\\mc264\\Desktop\\lab\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj"
+            "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj": {
+              "projectPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj"
             }
           }
         }
@@ -5679,7 +5678,6 @@
     },
     "frameworks": {
       "netcoreapp3.1": {
-        "targetAlias": "netcoreapp3.1",
         "dependencies": {
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
@@ -5713,7 +5711,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.400\\RuntimeIdentifierGraph.json"
       }
     }
   }
