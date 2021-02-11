@@ -4,11 +4,11 @@ using System.Text;
 
 namespace TriviaGameProtocol
 {
-    public class CategoryChoice : MessageType
+    public class AskForCard : MessageType
     {
         public override string MessageID()
         {
-            return "CategoryChoice";
+            return "AskForCard";
         }
 
         public override byte[] ToBytes()
@@ -17,37 +17,37 @@ namespace TriviaGameProtocol
         }
     }
 
-    public class CategoryChoiceReader : MessageReader
+    public class AskForCardReader : MessageReader
     {
         public override MessageType ParseMessage(out int readSize, byte[] buffer, int offset, int bufferSize)
         {
             readSize = 0;
-            return new CategoryChoice();
+            return new AskForCard();
         }
     }
 
 
-    public class ChooseCategory : MessageType
+    public class ChosenCard : MessageType
     {
-        public string Category;
+        public string Card;
 
         public override string MessageID()
         {
-            return "ChoseCategory";
+            return "ChosenCard";
         }
 
         public override byte[] ToBytes()
         {
-            byte[] bytes = new Byte[Category.Length+1];
-            bytes[Category.Length] = (byte)'\0';
-            Encoding.UTF8.GetBytes(Category, 0, Category.Length, bytes, 4);
+            byte[] bytes = new Byte[Card.Length+1];
+            bytes[Card.Length] = (byte)'\0';
+            Encoding.UTF8.GetBytes(Card, 0, Card.Length, bytes, 4);
             return bytes;
         }
     }
 
-    public class ChooseCategoryReader : MessageReader
+    public class ChosenCardReader : MessageReader
     {
-        private string Category = "";
+        private string Card = "";
         public override MessageType ParseMessage(out int readSize, byte[] buffer, int offset, int bufferSize)
         {
             bool foundNul = false;
@@ -63,8 +63,8 @@ namespace TriviaGameProtocol
             string recieved = Encoding.UTF8.GetString(buffer, offset, readSize);
             if (foundNul)
             {
-                ChooseCategory choice = new ChooseCategory();
-                choice.Category = Category;
+                ChosenCard choice = new ChosenCard();
+                choice.Card = Card;
             }
             return null;
         }
