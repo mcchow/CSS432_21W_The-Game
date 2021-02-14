@@ -74,7 +74,7 @@ namespace TriviaGameProtocol
          * handlers associated with the message type. Note that message types must be uniquely
          * identifiable by the string returned by their MessageID method.
          */
-        public void RegisterMessageHandler<T>(MessageHandler<T> messageHandler) where T : MessageType, new()
+        virtual public void RegisterMessageHandler<T>(MessageHandler<T> messageHandler) where T : MessageType, new()
         {
             if (messageHandler == null)
             {

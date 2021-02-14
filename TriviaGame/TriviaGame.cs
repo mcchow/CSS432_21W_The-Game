@@ -16,7 +16,7 @@ namespace TriviaGameClient
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
         
-        private Protocol protocol;
+        private QueuedProtocol protocol;
         private Connection connection;
         private Thread connectionThread;
 
@@ -33,7 +33,11 @@ namespace TriviaGameClient
 
         private void setupProtocol()
         {
-            protocol = new Protocol();
+            protocol = new QueuedProtocol();
+            protocol.RegisterMessageHandler<AskForCard>((message, connection) =>
+            {
+                Console.WriteLine("Server asked for card!");
+            });
         }
 
         private void connect()
@@ -83,6 +87,8 @@ namespace TriviaGameClient
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
+            
+            protocol.HandleMessages();
 
             startScreen.Update(gameTime);
 

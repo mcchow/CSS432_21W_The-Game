@@ -40,6 +40,7 @@ namespace TriviaGameServer
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
                 Console.WriteLine("Welcome " + registration.Name + "!");
+                c.Send(new AskForCard());
             });
         }
 
