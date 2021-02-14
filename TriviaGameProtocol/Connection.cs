@@ -10,15 +10,34 @@ namespace TriviaGameProtocol
     {
         private Socket socket;
         private Protocol protocol;
-        Connection(Socket socket, Protocol protocol)
+        private bool runningRecieveLoop;
+        public Connection(Socket socket, Protocol protocol)
         {
+            if (socket == null)
+            {
+                throw new ArgumentNullException("socket");
+            }
             this.socket = socket;
+
+            if (protocol == null)
+            {
+                throw new ArgumentNullException("protocol");
+            }
             this.protocol = protocol;
         }
 
+        /**
+         * This method will block until the connection is closed or an invalid message is recieved.
+         * As such, it should be called from its own thread.
+         */
         public void RecieveLoop()
         {
-            while (true) // Should loop until connection is closed.
+            if (runningRecieveLoop)
+            {
+                throw new Exception("Cannot simultaneously run multiple recieve loops on a connection.");
+            }
+            runningRecieveLoop = true;
+            while (socket.Connected)
             {
                 byte[] messageLength = new byte[4];
                 int readSize = 0;
@@ -27,14 +46,16 @@ namespace TriviaGameProtocol
                     readSize += socket.Receive(messageLength, readSize, 4 - readSize, SocketFlags.None);
                 }
                 Int32 messageSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(messageLength));
+                //TODO properly handle messages w/ size over some limit
                 readSize = 0;
                 byte[] message = new byte[messageSize];
                 while (readSize < messageSize)
                 {
                     readSize += socket.Receive(message, readSize, messageSize - readSize, SocketFlags.None);
                 }
-                protocol.ParseBytes(message, this.Send);
+                protocol.ParseBytes(message, this);
             }
+            runningRecieveLoop = false;
         }
 
         public void Send(MessageType message) {

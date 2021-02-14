@@ -4,8 +4,6 @@ using System.Text;
 
 namespace TriviaGameProtocol
 {
-    public delegate void MessageSender(MessageType message);
-
     /**
      * 
      */
@@ -33,8 +31,8 @@ namespace TriviaGameProtocol
         }
 
         public delegate void MH(MessageType mt);
-        private delegate void MessageHandlerWrapperFunc(byte[] b, MessageSender c);
-        public delegate void MessageHandler<T>(T message, MessageSender C) where T : MessageType;
+        private delegate void MessageHandlerWrapperFunc(byte[] b, Connection c);
+        public delegate void MessageHandler<T>(T message, Connection C) where T : MessageType;
 
         public Protocol()
         {
@@ -43,7 +41,7 @@ namespace TriviaGameProtocol
         /**
          * bytes must contain one complete message.
          */
-        public void ParseBytes(byte[] bytes, MessageSender messageSender)
+        public void ParseBytes(byte[] bytes, Connection connection)
         {
             int messageIDSize = 0;
             for (int i = 0; i < bytes.Length; ++i)
@@ -64,7 +62,7 @@ namespace TriviaGameProtocol
             System.Buffer.BlockCopy(bytes, messageIDSize + 1, messageBody, 0, bodySize);
             foreach (MessageHandlerWrapper i in messageHandlers[messageID])
             {
-                i.wrapper(messageBody, messageSender);
+                i.wrapper(messageBody, connection);
             }
         }
 

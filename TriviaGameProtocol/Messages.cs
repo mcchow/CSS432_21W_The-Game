@@ -8,7 +8,6 @@ namespace TriviaGameProtocol
     {
         public override void FromBytes(byte[] bytes)
         {
-            throw new NotImplementedException();
         }
 
         public override string MessageID()
@@ -28,7 +27,7 @@ namespace TriviaGameProtocol
 
         public override void FromBytes(byte[] bytes)
         {
-            throw new NotImplementedException();
+            Card = Encoding.UTF8.GetString(bytes);
         }
 
         public override string MessageID()

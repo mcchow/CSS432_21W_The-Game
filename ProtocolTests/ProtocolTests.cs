@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using TriviaGameProtocol;
 using System.Text;
+using System.Net.Sockets;
 
 namespace ProtocolTests
 {
@@ -84,42 +85,42 @@ namespace ProtocolTests
             int handler4Calls = 0;
             MockMessageType1 msg1 = new MockMessageType1();
             MockMessageType2 msg2 = new MockMessageType2();
-            MessageSender sender1 = (MessageType mt) => { };
-            MessageSender sender2 = (MessageType mt) => { };
-            p.RegisterMessageHandler<MockMessageType1>((MockMessageType1 msg, MessageSender send) =>
+            Connection connection1 = new Connection(new Socket(SocketType.Stream, ProtocolType.Tcp), p);
+            Connection connection2 = new Connection(new Socket(SocketType.Stream, ProtocolType.Tcp), p);
+            p.RegisterMessageHandler<MockMessageType1>((MockMessageType1 msg, Connection connection) =>
             {
                 Assert.Equal("12\034", Encoding.UTF8.GetString(msg.from));
-                Assert.Equal(sender1, send);
+                Assert.Equal(connection1, connection);
                 handler1Calls++;
             });
-            p.RegisterMessageHandler<MockMessageType1>((MockMessageType1 msg, MessageSender send) =>
+            p.RegisterMessageHandler<MockMessageType1>((MockMessageType1 msg, Connection connection) =>
             {
                 Assert.Equal("12\034", Encoding.UTF8.GetString(msg.from));
-                Assert.Equal(sender1, send);
+                Assert.Equal(connection1, connection);
                 handler2Calls++;
             });
-            p.RegisterMessageHandler<MockMessageType2>((MockMessageType2 msg, MessageSender send) =>
+            p.RegisterMessageHandler<MockMessageType2>((MockMessageType2 msg, Connection connection) =>
             {
                 Assert.Equal("12\034", Encoding.UTF8.GetString(msg.from));
-                Assert.Equal(sender2, send);
+                Assert.Equal(connection2, connection);
                 handler3Calls++;
             });
-            p.RegisterMessageHandler<MockMessageType2>((MockMessageType2 msg, MessageSender send) =>
+            p.RegisterMessageHandler<MockMessageType2>((MockMessageType2 msg, Connection connection) =>
             {
                 Assert.Equal("12\034", Encoding.UTF8.GetString(msg.from));
-                Assert.Equal(sender2, send);
+                Assert.Equal(connection2, connection);
                 handler4Calls++;
             });
 
             byte[] bytes = Encoding.UTF8.GetBytes("MockMessageOne\012\034");
-            p.ParseBytes(bytes, sender1);
+            p.ParseBytes(bytes, connection1);
             Assert.Equal(1, handler1Calls);
             Assert.Equal(1, handler2Calls);
             Assert.Equal(0, handler3Calls);
             Assert.Equal(0, handler4Calls);
 
             bytes = Encoding.UTF8.GetBytes("MockMessageTwo\012\034");
-            p.ParseBytes(bytes, sender2);
+            p.ParseBytes(bytes, connection2);
             Assert.Equal(1, handler1Calls);
             Assert.Equal(1, handler2Calls);
             Assert.Equal(1, handler3Calls);
