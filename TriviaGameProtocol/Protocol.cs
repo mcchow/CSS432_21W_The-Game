@@ -4,83 +4,95 @@ using System.Text;
 
 namespace TriviaGameProtocol
 {
+    public delegate void MessageSender(MessageType message);
+
+    /**
+     * 
+     */
     public class Protocol
     {
-        private Dictionary<string, MessageReader> messageReaders;
         private Dictionary<string, List<MessageHandlerWrapper>> messageHandlers;
-        private StringReader sr;
-        private string messageID;
-
-        public void RegisterMessageType(MessageType messageType, MessageReader messageReader)
-        {
-            messageReaders.Add(messageType.MessageID(), messageReader);
-        }
 
         private struct MessageHandlerWrapper
         {
-            public MessageHandlerWrapper(object messageHandler, MessageHandler<MessageType> wrapper)
+            public MessageHandlerWrapper(object messageHandler, MessageHandlerWrapperFunc wrapper)
             {
                 this.messageHandler = messageHandler;
                 this.wrapper = wrapper;
             }
             public override bool Equals(object obj)
             {
-                return messageHandler.Equals(obj);
+                return messageHandler.Equals(((MessageHandlerWrapper)obj).messageHandler);
             }
             public override int GetHashCode()
             {
                 return messageHandler.GetHashCode();
             }
             object messageHandler;
-            public MessageHandler<MessageType> wrapper;
+            public MessageHandlerWrapperFunc wrapper;
         }
 
         public delegate void MH(MessageType mt);
-        public delegate void MessageHandler<T>(T message) where T : MessageType;
+        private delegate void MessageHandlerWrapperFunc(byte[] b, MessageSender c);
+        public delegate void MessageHandler<T>(T message, MessageSender C) where T : MessageType;
 
-        public void parseBytes(byte[] bytes)
+        public Protocol()
         {
-            int offset = 0;
-            while (offset < bytes.Length - 1)
+            messageHandlers = new Dictionary<string, List<MessageHandlerWrapper>>();
+        }
+        /**
+         * bytes must contain one complete message.
+         */
+        public void ParseBytes(byte[] bytes, MessageSender messageSender)
+        {
+            int messageIDSize = 0;
+            for (int i = 0; i < bytes.Length; ++i)
             {
-                int readSize = 0;
-                if (messageID == null)
+                if (bytes[i] == (byte)'\0')
                 {
-                    messageID = sr.ParseMessage(out readSize, bytes, bytes.Length);
+                    messageIDSize = i;
+                    break;
                 }
-                if (messageID == null)
-                {
-                    throw new Exception("Unable to parse message type!");
-                }
-                if (!messageReaders.ContainsKey(messageID))
-                {
-                    throw new Exception("Unsupported message type.");
-                }
-                MessageType msg = messageReaders[messageID].ParseMessage(out readSize, bytes, offset, bytes.Length - offset);
-                if (msg != null)
-                {
-                    foreach (MessageHandlerWrapper i in messageHandlers[messageID])
-                    {
-                        i.wrapper(msg);
-                    }
-                }
-                offset += readSize;
+            }
+            string messageID = Encoding.UTF8.GetString(bytes, 0, messageIDSize);
+            if (!messageHandlers.ContainsKey(messageID))
+            {
+                return;
+            }
+            int bodySize = bytes.Length - messageIDSize - 1;
+            byte[] messageBody = new byte[bodySize];
+            System.Buffer.BlockCopy(bytes, messageIDSize + 1, messageBody, 0, bodySize);
+            foreach (MessageHandlerWrapper i in messageHandlers[messageID])
+            {
+                i.wrapper(messageBody, messageSender);
             }
         }
 
+        /**
+         * This method serves the dual purpose of registering message types and message handlers.
+         * When parseBytes recieves a message of type T, it will convert the bytes into an instance
+         * of the appropriate message type and pass that message, along with a MessageSender
+         * delegate (to be used to send replies of any message type) to all the registered message
+         * handlers associated with the message type. Note that message types must be uniquely
+         * identifiable by the string returned by their MessageID method.
+         */
         public void RegisterMessageHandler<T>(MessageHandler<T> messageHandler) where T : MessageType, new()
         {
+            if (messageHandler == null)
+            {
+                throw new ArgumentNullException("messageHandler");
+            }
             T messageType = new T();
             string messageID = messageType.MessageID();
-            if (!messageReaders.ContainsKey(messageID))
-            {
-                throw new Exception("Unsupported message type.");
-            }
             if (!messageHandlers.ContainsKey(messageID))
             {
                 messageHandlers[messageID] = new List<MessageHandlerWrapper>();
             }
-            MessageHandlerWrapper mh = new MessageHandlerWrapper(messageHandler, t => messageHandler((T)t));
+            MessageHandlerWrapper mh = new MessageHandlerWrapper(messageHandler, (b, c) => {
+                T t = new T();
+                t.FromBytes(b);
+                messageHandler(t, c);
+            });
             if (!messageHandlers[messageID].Contains(mh))
             {
                 messageHandlers[messageID].Add(mh);
@@ -88,40 +100,11 @@ namespace TriviaGameProtocol
         }
     }
 
-    public class StringReader
+    public abstract class MessageType
     {
-        private string str;
-        public string ParseMessage(out int readSize, byte[] buffer, int bufferSize)
-        {
-            bool foundNul = false;
-            readSize = 0;
-            for (int i = 0; i < bufferSize; ++i)
-            {
-                if (buffer[i] == (byte)'\0')
-                {
-                    readSize = i;
-                    break;
-                }
-            }
-            string recieved = Encoding.UTF8.GetString(buffer, 0, readSize);
-            str += recieved;
-            if (foundNul)
-            {
-                string res = str;
-                str = "";
-                return res;
-            }
-            return null;
-        }
-    }
-
-    public abstract class MessageReader
-    {
-        public abstract MessageType ParseMessage(out int readSize, byte[] buffer, int offset, int bufferSize);
-    }
-
-    public abstract class MessageType {
         public abstract string MessageID();
+
+        public abstract void FromBytes(byte[] bytes);
 
         public abstract byte[] ToBytes();
     }

@@ -6,6 +6,11 @@ namespace TriviaGameProtocol
 {
     public class AskForCard : MessageType
     {
+        public override void FromBytes(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
+
         public override string MessageID()
         {
             return "AskForCard";
@@ -17,19 +22,14 @@ namespace TriviaGameProtocol
         }
     }
 
-    public class AskForCardReader : MessageReader
-    {
-        public override MessageType ParseMessage(out int readSize, byte[] buffer, int offset, int bufferSize)
-        {
-            readSize = 0;
-            return new AskForCard();
-        }
-    }
-
-
     public class ChosenCard : MessageType
     {
         public string Card;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            throw new NotImplementedException();
+        }
 
         public override string MessageID()
         {
@@ -45,28 +45,4 @@ namespace TriviaGameProtocol
         }
     }
 
-    public class ChosenCardReader : MessageReader
-    {
-        private string Card = "";
-        public override MessageType ParseMessage(out int readSize, byte[] buffer, int offset, int bufferSize)
-        {
-            bool foundNul = false;
-            readSize = bufferSize;
-            for (int i = offset; i < offset + bufferSize; ++i)
-            {
-                if (buffer[i] == (byte)'\0')
-                {
-                    readSize = i - offset;
-                    break;
-                }
-            }
-            string recieved = Encoding.UTF8.GetString(buffer, offset, readSize);
-            if (foundNul)
-            {
-                ChosenCard choice = new ChosenCard();
-                choice.Card = Card;
-            }
-            return null;
-        }
-    }
 }
