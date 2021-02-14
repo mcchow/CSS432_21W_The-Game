@@ -1,3 +1,4 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/File.spritefont","C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/normal.xnb","FontDescriptionProcessor","SpriteFontContent",2008,21538,0.2552462
 "C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/stars.jpg","C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/stars.xnb","TextureProcessor","Texture2DContent",150614,1920085,0.178273
 "C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/Startbutton.png","C:/Users/deafening_void/Source/Repos/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/Startbutton.xnb","TextureProcessor","Texture2DContent",8657,95557,0.0037553

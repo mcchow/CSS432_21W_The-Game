@@ -959,13 +959,24 @@
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
           "MonoGame.Content.Builder.Task": "3.8.0.1641",
-          "MonoGame.Framework.DesktopGL": "3.8.0.1641"
+          "MonoGame.Framework.DesktopGL": "3.8.0.1641",
+          "TriviaGameProtocol": "1.0.0"
         },
         "compile": {
           "bin/placeholder/TriviaGameClient.dll": {}
         },
         "runtime": {
           "bin/placeholder/TriviaGameClient.dll": {}
+        }
+      },
+      "TriviaGameProtocol/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/TriviaGameProtocol.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/TriviaGameProtocol.dll": {}
         }
       }
     }
@@ -3673,6 +3684,11 @@
       "type": "project",
       "path": "../TriviaGame/TriviaGameClient.csproj",
       "msbuildProject": "../TriviaGame/TriviaGameClient.csproj"
+    },
+    "TriviaGameProtocol/1.0.0": {
+      "type": "project",
+      "path": "../TriviaGameProtocol/TriviaGameProtocol.csproj",
+      "msbuildProject": "../TriviaGameProtocol/TriviaGameProtocol.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -3709,6 +3725,7 @@
       },
       "frameworks": {
         "netcoreapp3.1": {
+          "targetAlias": "netcoreapp3.1",
           "projectReferences": {
             "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj": {
               "projectPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj"
@@ -3724,6 +3741,7 @@
     },
     "frameworks": {
       "netcoreapp3.1": {
+        "targetAlias": "netcoreapp3.1",
         "dependencies": {
           "Microsoft.NET.Test.Sdk": {
             "target": "Package",
@@ -3757,7 +3775,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.400\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.103\\RuntimeIdentifierGraph.json"
       }
     }
   }

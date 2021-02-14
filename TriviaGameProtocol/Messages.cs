@@ -37,10 +37,26 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            byte[] bytes = new Byte[Card.Length+1];
-            bytes[Card.Length] = (byte)'\0';
-            Encoding.UTF8.GetBytes(Card, 0, Card.Length, bytes, 4);
-            return bytes;
+            return Encoding.UTF8.GetBytes(Card);
+        }
+    }
+
+    public class Register : MessageType
+    {
+        public string Name;
+        public override void FromBytes(byte[] bytes)
+        {
+            Name = Encoding.UTF8.GetString(bytes);
+        }
+
+        public override string MessageID()
+        {
+            return "Register";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return Encoding.UTF8.GetBytes(Name);
         }
     }
 

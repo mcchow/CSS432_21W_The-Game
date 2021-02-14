@@ -11,6 +11,7 @@ namespace TriviaGameProtocol
         private Socket socket;
         private Protocol protocol;
         private bool runningRecieveLoop;
+        private bool shouldStayConnected;
         public Connection(Socket socket, Protocol protocol)
         {
             if (socket == null)
@@ -24,6 +25,18 @@ namespace TriviaGameProtocol
                 throw new ArgumentNullException("protocol");
             }
             this.protocol = protocol;
+            shouldStayConnected = true;
+        }
+
+        public Socket GetSocket()
+        {
+            return socket;
+        }
+
+        public void Disconnect()
+        {
+            shouldStayConnected = false;
+            socket.Close(5);
         }
 
         /**
@@ -36,24 +49,56 @@ namespace TriviaGameProtocol
             {
                 throw new Exception("Cannot simultaneously run multiple recieve loops on a connection.");
             }
-            runningRecieveLoop = true;
-            while (socket.Connected)
+            try
             {
-                byte[] messageLength = new byte[4];
-                int readSize = 0;
-                while (readSize < 4)
+                runningRecieveLoop = true;
+                while (socket.Connected && shouldStayConnected)
                 {
-                    readSize += socket.Receive(messageLength, readSize, 4 - readSize, SocketFlags.None);
+                    byte[] messageLength = new byte[4];
+                    int readSize = 0;
+                    while (readSize < 4 && shouldStayConnected)
+                    {
+                        //Console.WriteLine("A: " + shouldStayConnected + socket.Connected);
+                        int bytesRead = socket.Receive(messageLength, readSize, 4 - readSize, SocketFlags.None);
+                        if (bytesRead == 0)
+                        {
+                            Disconnect();
+                            break;
+                        }
+                        readSize += bytesRead;
+                    }
+                    if (!shouldStayConnected || !socket.Connected)
+                    {
+                        break;
+                    }
+                    Int32 messageSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(messageLength));
+                    //TODO properly handle messages w/ size over some limit
+                    readSize = 0;
+                    byte[] message = new byte[messageSize];
+                    while (readSize < messageSize && socket.Connected && shouldStayConnected)
+                    {
+                        //Console.WriteLine("B: " + shouldStayConnected);
+                        int bytesRead = socket.Receive(message, readSize, messageSize - readSize, SocketFlags.None);
+                        if (bytesRead == 0)
+                        {
+                            Disconnect();
+                            break;
+                        }
+                        readSize += bytesRead;
+                    }
+                    if (!shouldStayConnected || !socket.Connected)
+                    {
+                        break;
+                    }
+                    protocol.ParseBytes(message, this);
                 }
-                Int32 messageSize = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(messageLength));
-                //TODO properly handle messages w/ size over some limit
-                readSize = 0;
-                byte[] message = new byte[messageSize];
-                while (readSize < messageSize)
+            } catch (SocketException e)
+            {
+                runningRecieveLoop = false;
+                if (shouldStayConnected)
                 {
-                    readSize += socket.Receive(message, readSize, messageSize - readSize, SocketFlags.None);
+                    throw e;
                 }
-                protocol.ParseBytes(message, this);
             }
             runningRecieveLoop = false;
         }
