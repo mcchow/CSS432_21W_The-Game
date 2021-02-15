@@ -1,13 +1,13 @@
 ﻿using System;
 
-namespace TriviaGame
+namespace TriviaGameClient
 {
     public static class Program
     {
         [STAThread]
         static void Main()
         {
-            using (var game = new Game1())
+            using (var game = new TriviaGame())
                 game.Run();
         }
     }
