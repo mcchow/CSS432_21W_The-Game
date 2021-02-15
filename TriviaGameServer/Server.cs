@@ -39,15 +39,30 @@ namespace TriviaGameServer
             protocol = new Protocol();
             protocol.RegisterMessageHandler<ChosenCard>((ChosenCard card, Connection c) =>
             {
-                Console.WriteLine("Chose Card: " + card.Card);  // here parse messgae in setupconn
-                // call setUpConnToDatabase(string category) 
-                //      where category = card
-                // List<string> message = setUpConnToDatabase(string category)
-                // string q = message[0]
-                // TriviaQuestion Q = new TrviaQuestion();
-                // Q.question = q;
-                // string questionID = message[1];
-                // ...
+                Console.WriteLine("Chose Card: " + card.Card); 
+
+                List<string> message = setUpConnToDatabase(card.Card);
+                
+                string q = message[0];
+                string opA = message[3];
+                string opB = message[4];
+                string opC = message[5];
+                string opD = message[6];
+                TriviaQuestion Q = new TriviaQuestion();
+                Q.question = q;
+                Q.optionA = opA;
+                Q.optionA = opB;
+                Q.optionA = opC;
+                Q.optionA = opD;
+
+                string questionID = message[1];
+
+                char corAns = char.Parse(message[2]);
+                AnswerAndResult AandR = new AnswerAndResult();
+                AandR.correctAnswer = corAns;
+
+                // need data structure to figure out with room to save info to with connection (hashmap?)
+
 
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
