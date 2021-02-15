@@ -1,8 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "3iz7gjb5CG2Bv7eYJreA1O31bFw/TLx5F4seEze6NOGAzudwCt2ey+mJKRfOtKx1K+InL3QlVVxTCHz7eUrTzA==",
+  "dgSpecHash": "bAQimDtQJq+sB/Er0E0vFfkQ+r5admxB1l+J0rCl1tqoBcfyPk3HEvv4HB4iOFIfSp3EAxC04GrP66mgb9Kjew==",
   "success": true,
-  "projectFilePath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGameServer\\TriviaGameServer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Mariana\\.nuget\\packages\\microsoft.data.sqlite\\5.0.3\\microsoft.data.sqlite.5.0.3.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\microsoft.data.sqlite.core\\5.0.3\\microsoft.data.sqlite.core.5.0.3.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.0.4\\sqlitepclraw.bundle_e_sqlite3.2.0.4.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\sqlitepclraw.core\\2.0.4\\sqlitepclraw.core.2.0.4.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.0.4\\sqlitepclraw.lib.e_sqlite3.2.0.4.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\sqlitepclraw.provider.dynamic_cdecl\\2.0.4\\sqlitepclraw.provider.dynamic_cdecl.2.0.4.nupkg.sha512",
+    "C:\\Users\\Mariana\\.nuget\\packages\\system.memory\\4.5.3\\system.memory.4.5.3.nupkg.sha512"
+  ],
   "logs": []
 }

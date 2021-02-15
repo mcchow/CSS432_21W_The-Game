@@ -1,0 +1,397 @@
+The Game: Project Planning 
+
+CSS 432 
+
+Winter 2021 
+
+Week 2 Planning: 
+
+Client: 
+
+Game GUI  
+
+Send server the card(category) the user picked 
+
+Connect to server (TCP request) 
+
+Close TCP connection 
+
+ 
+
+Server: 
+
+Response -  
+
+Give user trivia question 
+
+Number of cards each player has 
+
+Check if winner (check each users card status and compare) 
+
+Room hosting 
+
+Close TCP connection/Room 
+
+ 
+
+Database: 
+
+Stores trivia questions (SQLite) 
+
+Question: 
+
+Number ID(key) 
+
+Category 
+
+Question description 
+
+Correct answer(a, b, c, d) 
+
+Option A 
+
+Option B 
+
+Option C 
+
+Option D 
+
+User: 
+
+User Data(name) 
+
+Number of games won 
+
+ 
+
+Implement a global scoreboard. This would keep a record of who has the most points or wins (or whatever your metric for scoring is).  If you implement your game as a P2P game, you should use your bootstrap server as scoreboard server (a distributed scoreboard would be great, but it is beyond the scope of the course, so unless you're really motivated to do so, you can take the more centralized and simpler approach). The scoreboard is a global scoreboard for all games and all registered players, but not for an individual game. 
+
+ 
+
+Start a server: 
+
+Connect to server and port before protocol 
+
+ 
+
+Protocol: 
+
+<data> room_Id, actioncode, Name </data> 
+
+Create room 
+
+Join room 
+
+Reply: 
+
+Success/fail (if create room with unavailable name = fail, if user tries to join full room = fail) 
+
+If successful in creating room, update lobby, add player 1 to room, wait, once have full room to start game 
+
+If fail, send error message to player 
+
+If successful in joining room, update lobby, add player 2 to room, start game 
+
+Start Game: 
+
+Show who’s turn to both players 
+
+Server Prompt player 1 to pick a card(category), send player 2 wait message 
+
+Server reads what player 1’s choice is  
+
+Server gives player 1 a trivia question from the database of that category, add questionID (from the database) to hashset 
+
+Server compares player 1’s answer to correct answer from database 
+
+Server tells player 1 if they got the answer correct or not 
+
+if correct, give player 1 the category card, repeat steps 1 – 4 
+
+if incorrect, end player 1’s turn 
+
+update card status of both player 1 and player 2 to both players 
+
+check if any player has reached 6 cards 
+
+if true, tell which player won, end game 
+
+if false, continue to step 5e 
+
+give player 2 their turn and repeat steps 1 – 5d 
+
+End Game: 
+
+Remove both players from the room 
+
+delete the room id  
+
+update the lobby (remove room from lobby) 
+
+send both players back to lobby screen?	 
+
+ 
+
+Actions/messages: 
+
+Create Room  
+
+create room id 
+
+update list of rooms 
+
+add player to room 
+
+ 
+
+Join Room  
+
+display list of rooms 
+
+user picks a room to join (do not allow players to join full rooms, full = 2 players) 
+
+connect the two players to the same server 
+
+update list of rooms 
+
+start game for the two players (entire game uses one port) 
+
+ 
+
+#List Rooms 
+
+ 
+
+Delete Room 
+
+delete room id 
+
+update list of rooms when game ends 
+
+send players back to list of rooms screen? 
+
+ 
+
+Turn status  
+
+  	who’s turn is it currently 
+
+How many category cards does each player have 
+
+ 
+
+Request Card (Choose Card Category) 
+
+Category Identifier 
+
+ 
+
+Card Request Response  
+
+Give the player a question of that category from the database 
+
+Show player the list of multiple-choice answers 
+
+ 
+
+Submit Answer  
+
+(A, B, C, or D) 
+
+Compare user answer to correct answer stored in database 
+
+Tell user if they were correct 
+
+If correct, give user the matching category card 
+
+If incorrect, end player 1’s turn and give turn to player 2 
+
+ 
+
+Notes: 
+
+Keep track of questions that have already been asked in the duration of the game with a hashset 
+
+ 
+
+Page Break
+ 
+
+Week 3 Planning: 
+
+Notes: 
+
+Server and database should work together 
+
+ 
+
+List of Datatypes to be Sent between Client/Server: 
+
+Input of Client:  
+
+Answer result 
+
+TriviaQuestion(string: max size 100) 
+
+room create result: bool 
+
+room join result: bool 
+
+game result: bool 
+
+ 
+
+Output of Client:  
+
+trivia Question request of some type( type) 
+
+User’s answer to trivia Question: Char 
+
+ 
+
+Input of Server:  
+
+Create Room 
+
+RoomID : unsigned short 
+
+PlayerName: string 
+
+Join Room 
+
+RoomID: unsigned short 
+
+PlayerName: string 
+
+Game 
+
+questionCategory: string 
+
+User’s answer to trivia Question: Char 
+
+triviaQuestion: string (request to database) 
+
+questionAnswer: char 
+
+questionCategory: string 
+
+userAnswer: char 
+
+Category Selection 
+
+CategoryID: string 
+
+Answer Choice 
+
+AnswerID: char 
+
+ 
+
+Output of Server:  
+
+Room State 
+
+OpponentName: string 
+
+Turn: bool? (Should represent player 1 or 2) 
+
+CategoryID: string (could be empty string if no category has been selected yet) 
+
+Question: string (could be empty string if no question has been provided yet) 
+
+PlayerState:  
+
+Answer Response: 
+
+GotCorrectAnswer: bool 
+
+Turn Start 
+
+Turn End 
+
+Game Over 
+
+triviaQuestion: request to database (string) 
+
+questionAnswer: char 
+
+questionCategory: string 
+
+userAnswer: char 
+
+ 
+
+ 
+
+Message Flow: 
+
+Message 1:  
+
+	Server output: asks player to pick a category card -> asksForCard: string 
+
+ 
+
+Message 2:  
+
+	Server input: player’s chosen card -> chosenCard: string 
+
+ 
+
+Message 3: 
+
+	Server output: server gives player 1 question from database -> trviaQuestion: string 
+
+		             server gives player 2 question category -> triviaCategory: string 
+
+ 
+
+Message 4:  
+
+	Server input: players chooses one of the multiple choice answers -> playerAnswer: char 
+
+ 
+
+Message 5: 
+
+	Server output: server shows the player the correct answer -> correctAnswer: char 
+
+		             server shows player 1 their current number of cards -> curNumCards: int 
+
+                                          server tells player 1 that is now player 2’s turn -> whosTurn: int 
+
+ 
+
+Message 6: 
+
+	Server output: server tells player 2 that it is their turn -> whosTurn: int 
+
+             server shows player 2 player 1’s current number of cards -> curNumCards: int 
+ 
+
+Repeat messages 1 – 6 for the other player 
+
+ 
+
+Server checks if have winner 
+
+ 
+
+Message 7:  
+
+	Server output: server tells player 1 who the winner is -> winner: String  
+
+ 
+
+Message 8: 
+
+	Server output: server tells player 2 who the winner is -> winner: String 
+
+ 
+
+ 
+
+ 
+
+           
+
+	 

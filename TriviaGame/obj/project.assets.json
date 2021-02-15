@@ -190,19 +190,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\deafening_void\\.nuget\\packages\\": {}
+    "C:\\Users\\Mariana\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
+      "projectUniqueName": "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
       "projectName": "TriviaGameClient",
-      "projectPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
-      "packagesPath": "C:\\Users\\deafening_void\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGame\\obj\\",
+      "projectPath": "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGame\\TriviaGameClient.csproj",
+      "packagesPath": "C:\\Users\\Mariana\\.nuget\\packages\\",
+      "outputPath": "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGame\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\deafening_void\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\Mariana\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -216,8 +216,8 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameProtocol\\TriviaGameProtocol.csproj": {
-              "projectPath": "C:\\Users\\deafening_void\\Source\\Repos\\CSS432_21W_The-Game\\TriviaGameProtocol\\TriviaGameProtocol.csproj"
+            "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGameProtocol\\TriviaGameProtocol.csproj": {
+              "projectPath": "D:\\Code\\GitHub\\CSS432_21W_The-Game\\TriviaGameProtocol\\TriviaGameProtocol.csproj"
             }
           }
         }
@@ -256,7 +256,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.103\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.102\\RuntimeIdentifierGraph.json"
       }
     }
   }

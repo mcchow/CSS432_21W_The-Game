@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.Data.SQLite;
 
 namespace TriviaGameProtocol
 {
@@ -60,4 +61,25 @@ namespace TriviaGameProtocol
         }
     }
 
+    // mariana: TriviaQuestion, PlayerAnswer, and AnswerAndResult
+    public class TriviaQuestion : MessageType     // need to install SQLite resources?
+    {
+        public string question;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            question = Encoding.UTF8.GetString(bytes);
+        }
+
+        public override string MessageID()
+        {
+            return "TriviaQuestion";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return Encoding.UTF8.GetBytes(question);
+        }
+    }
 }
+

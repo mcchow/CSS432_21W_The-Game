@@ -4,6 +4,8 @@ using System.Net;
 using System.Text;
 using TriviaGameProtocol;
 using System.Threading;
+using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
 
 namespace TriviaGameServer
 {
@@ -20,6 +22,8 @@ namespace TriviaGameServer
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
 
+        // database connection here? is thread safe?
+
         public Server()
         {
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
@@ -35,7 +39,16 @@ namespace TriviaGameServer
             protocol = new Protocol();
             protocol.RegisterMessageHandler<ChosenCard>((ChosenCard card, Connection c) =>
             {
-                Console.WriteLine("Chose Card: " + card.Card);
+                Console.WriteLine("Chose Card: " + card.Card);  // here parse messgae in setupconn
+                // call setUpConnToDatabase(string category) 
+                //      where category = card
+                // List<string> message = setUpConnToDatabase(string category)
+                // string q = message[0]
+                // TriviaQuestion Q = new TrviaQuestion();
+                // Q.question = q;
+                // string questionID = message[1];
+                // ...
+
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
@@ -73,5 +86,45 @@ namespace TriviaGameServer
             }
             connectionPool.Release();
         }
+
+        private List<string> setUpConnToDatabase(string category)
+        {
+            List<string> message = new List<string>();
+
+            // using Microsoft.Data.Sqlite
+            using (var connection = new SqliteConnection("Data Source=TriviaGame.db"))
+            {
+                connection.Open();
+
+                var command = connection.CreateCommand();
+                command.CommandText =
+                @"
+                SELECT questionDescription, questionID, correctAnswer, optionA, optionB, optionC, optionD
+                FROM Question
+                WHERE category = $catCard  
+                ORDER BY RANDOM()
+                LIMIT 1
+                ";
+                command.Parameters.AddWithValue("$catCard", category);
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        string result;
+
+                        for (int i = 0; i < 7; i++)
+                        {
+                            result = reader.GetString(i);
+                            message.Add(result);
+                        }
+                    }
+                }
+            }
+
+            return message;
+        }
+
+
     }
 }

@@ -1,0 +1,104 @@
+TheGame Trivia Game Database:
+CSS 432 - Section A
+Winter 2021
+SQLite
+-------------------------------------------------------------------------------------------------
+// create table statements
+
+create table User
+(
+username varchar(255) not null,
+numGamesWon int not null check(numGamesWon >= 0),
+primary key(username)
+);
+
+create table Question
+(
+questionID varchar(255) not null, 
+category varchar(255) not null check(category in ("History", "Art", "Science", "Entertainment", "Geography", "Sports")),
+questionDescription varchar(255) not null,
+correctAnswer char(1) not null check(correctAnswer in ("a", "b", "c", "d")),
+optionA varchar(255) not null,
+optionB varchar(255) not null,
+optionC varchar(255) not null,
+optionD varchar(255) not null,
+primary key(questionID)
+);
+
+PRAGMA foreign_keys = ON;
+
+// populate the database
+insert into User values ("Bob", 3);
+
+insert into User values ("Linda", 10);
+
+insert into User values ("Tina", 5);
+
+insert into User values ("Gene", 2);
+
+insert into User values ("Louise", 100);
+
+// do use these kinds of quotes '', use ""
+insert into Question values ("1", "History", "Which queen had the shortest reign of Henry VIII's six wives?", "a", "Anne of Cleves", "Maria Abel", "Louisa May Alcott", "Anne Hennis");
+
+insert into Question values ("2", "Art", "Who painted The American Gothic?", "b", "Amelia Fankhouse", "Grant Wood", "Vincent Van Gogh", "Georgia O'Keefe");
+
+insert into Question values ("3", "Science", "When was the idea of the atom introduced?", "c", "1942", "1050", "450 B.C.", "1791");
+
+insert into Question values ("4", "Entertainment", "In the Matrix, does Neo take the blue pill or the red pill?", "d", "Both", "Blue", "Neither", "Red");
+
+insert into Question values ("5", "Geography", "What is the capitol of the American state of Arizona?", "d", "Albainia", "Seattle", "Jacksonville", "Phoenix");
+
+insert into Question values ("6", "Sports", "What is the diameter of a basketball hoop in inches?", "c", "12 inches", "15 inches", "18 inches", "22 inches");
+
+insert into Question values ("7", "History", "Who was the second man to walk on the moon?", "b", "Neil Armstrong", "Buzz Aldrin", "Steve Jobs", "Bob Belcher");
+
+insert into Question values ("8", "Art", "Which artist is most famous for their close-up perspective paintings of flowers?", "d", "Scott Bickford", "Amy Adams", "Gregory Crewdson", "Georgia O'Keefe");
+
+insert into Question values ("9", "Science", "What is the gestation period of a hippo?", "a", "8 months", "4 months", "12 months", "16 months");
+
+insert into Question values ("10", "Entertainment", "What flavor of Pop Tarts does Buddy use in his spaghetti in Elf?", "c", "Blueberry", "Snickerdoodle", "Chocolate", "Cherry");
+
+insert into Question values ("11", "Geography", "How many federal states does Germany have?", "a", "16", "11", "22", "5");
+
+insert into Question values ("12", "Sports", "What sport is dubbed the king of sports?", "b", "Football", "Soccer", "Tennis", "Quidditch");
+
+insert into Question values ("13", "History", "In 16th-century Japan, who was Yasuke?", "c", "An ordinary peasant", "The king", "The first born samuri", "The first shogun");
+
+insert into Question values ("14", "Art", "What was the extravagant period of art and architecture prevalent in Europe during most of the 17th century?", "d", "The Baratone period", "The Brock period", "The Bearstein's period", "The Baraque period");
+
+insert into Question values ("15", "Science", "In what type of matter are atoms most tightly packed?", "a", "Solids", "Gases", "Liquids", "They are all the same");
+
+insert into Question values ("16", "Entertainment", "In what 1979 James Bond movie does the famous spy go to outer space?", "d", "Spectre", "Casino Royale", "No Time to Die", "Moonraker");
+
+insert into Question values ("17", "Geography", "What is the capitol of Japan?", "c", "Shiba Inu", "Nagasaki", "Tokyo", "Hiroshima");
+
+insert into Question values ("18", "Sports", "What country has competed the most times in the summer Olympics without winning any medal at all?", "b", "Albania", "Liechtenstein", "Spain", "Laos");
+
+insert into Question values ("19", "History", "Which king preceded Queen Victoria?", "d", "King Henry IV", "King Edward II", "King Francis", "King William IV");
+
+insert into Question values ("20", "Art", "Which famous painter was also a sculptor, an architect, and an engineer?", "c", "Da vinky", "Mona Lisa", "Leonardo Da Vinci", "Michaelangelo");
+
+insert into Question values ("21", "Science", "What planet has the most moons?", "b", "Saturn", "Jupiter", "Earth", "Mars");
+
+insert into Question values ("22", "Entertainment", "What animated classic was the first film of the late-twentieth-century Disney Renaissance?", "b", "Snow White", "The Little Mermaid", "Aladdin", "Beauty and the Beast");
+
+insert into Question values ("23", "Geography", "What is the only seas without any coasts?", "c", "Mediterranean Sea", "Celebes Sea", "Sargasso Sea", "Adriatic Sea");
+
+insert into Question values ("24", "Sports", "How many medals did China win at the Bejing Olympics in 2008?", "c", "45", "13", "100", "104");
+
+insert into Question values ("25", "History", "What, in the 16th and 17th centuries, was a drunkard's cloak?", "a", "A form of humiliating punishment for alcohol abusers", "A really bad hangover", "The stench of alcohol", "A drunk fox");
+
+insert into Question values ("26", "Art", "Claude Monet is most known for his paintings of what?", "b", "Mountain paintings", "Water lily paintings", "Portrait paintings", "Iris paintings");
+
+insert into Question values ("27", "Science", "Hurricanes only form over _____?", "c", "Warm land", "Cold water", "Warm water", "Cold land");
+
+insert into Question values ("28", "Entertainment", "Who voiced Jessica Rabbit in Who's Afraid of Roger Rabbit?", "b", "Barbara Franks", "Kathleen Turner", "Mindy Smith", "Hailey Cantom");
+
+insert into Question values ("29", "Geography", "What is Earth's largest continent?", "a", "Asia", "Antarctica", "Europe", "Africa");
+
+insert into Question values ("30", "Sports", "How many players are there on a basketball team?", "a", "9", "6", "23", "12");
+
+
+
+
