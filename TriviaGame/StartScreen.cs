@@ -10,15 +10,38 @@ namespace TriviaGameClient
 {
     class StartScreen : Component
     {
+        private string stage = "startScreen";
+        /// <summary>
+        /// Start page content
+        /// </summary>
         private Texture2D background;
         private Button startButton;
         private TextField textField;
 
+        /// <summary>
+        /// meun content
+        /// </summary>
+        private Button CreatelobbyButton;
+        private Button JoinlobbyButton;
+
         public event EventHandler<string> Next;
+
+
 
         private void StartButton_Click(object sender, System.EventArgs e)
         {
             Next?.Invoke(this, textField.Text);
+            stage = "meun";
+        }
+
+        private void Createroom_Click(object sender, System.EventArgs e)
+        {
+            stage = "meun";
+        }
+
+        private void Joinroom_Click(object sender, System.EventArgs e)
+        {
+            stage = "meun";
         }
 
         public StartScreen(ContentManager content)
@@ -32,23 +55,65 @@ namespace TriviaGameClient
             startButton.Click += StartButton_Click;
             textField = new TextField(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"));
             textField.Rectangle = new Rectangle(350, 100, 100, 20);
+
+            /////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///meun page
+            ///
+
+            CreatelobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(350, 200),
+                Text = "Create Lobby"
+            };
+            CreatelobbyButton.Click += Createroom_Click;
+            JoinlobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(350, 300),
+                Text = "Join Lobby"
+            };
+            JoinlobbyButton.Click += Joinroom_Click;
+
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
         {
             spriteBatch.Begin();
 
-            spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
-            startButton.Draw(gameTime, spriteBatch);
-            textField.Draw(gameTime, spriteBatch);
+            switch (stage)
+            {
+                case "startScreen":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    startButton.Draw(gameTime, spriteBatch);
+                    textField.Draw(gameTime, spriteBatch);
+                    break;
+                case "meun":
+                    spriteBatch.Begin();
+
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    CreatelobbyButton.Draw(gameTime, spriteBatch);
+                    JoinlobbyButton.Draw(gameTime, spriteBatch);
+
+                    spriteBatch.End();
+                    break;
+
+            }
 
             spriteBatch.End();
         }
 
         public override void Update(GameTime gameTime)
         {
-            startButton.Update(gameTime);
-            textField.Update(gameTime);
+            switch (stage)
+            {
+                case "startScreen":
+                    startButton.Update(gameTime);
+                    textField.Update(gameTime);
+                    break;
+                case "meun":
+                    CreatelobbyButton.Update(gameTime);
+                    JoinlobbyButton.Update(gameTime);
+                    break;
+            }
         }
     }
 }
