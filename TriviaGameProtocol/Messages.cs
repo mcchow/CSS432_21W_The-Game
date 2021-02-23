@@ -69,26 +69,15 @@ namespace TriviaGameProtocol
         public string optionC;
         public string optionD;
 
-        int lenQuestion;
-        int lenOpA;
-        int lenOpB;
-        int lenOpC;
-        int lenOpD;
-        int lenTotal;
-
         public override void FromBytes(byte[] bytes)
         {
-            lenQuestion = question.Length;
-            lenOpA = lenQuestion + optionA.Length;
-            lenOpB = lenOpA + optionB.Length;
-            lenOpC = lenOpB + optionC.Length;
-            lenOpD = lenOpC + optionD.Length;
-
-            question = BitConverter.ToString(bytes, 0);
-            optionA = BitConverter.ToString(bytes, lenQuestion + 1);
-            optionB = BitConverter.ToString(bytes, lenOpA + 1);
-            optionC = BitConverter.ToString(bytes, lenOpB + 1);
-            optionD = BitConverter.ToString(bytes, lenOpC + 1);
+            string bigString = Encoding.UTF8.GetString(bytes);
+            string[] splitString = bigString.Split("*");
+            question = splitString[0];
+            optionA = splitString[1];
+            optionB = splitString[2];
+            optionC = splitString[3];
+            optionD = splitString[4];
         }
 
         public override string MessageID()
@@ -98,20 +87,41 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            lenTotal = lenQuestion + lenOpA + lenOpB + lenOpC + lenOpD;
+            int countBytesQuestion = ASCIIEncoding.Unicode.GetByteCount(question);
+            int countBytesOpA = ASCIIEncoding.Unicode.GetByteCount(optionA);
+            int countBytesOpB = ASCIIEncoding.Unicode.GetByteCount(optionB);
+            int countBytesOpC = ASCIIEncoding.Unicode.GetByteCount(optionC);
+            int countBytesOpD = ASCIIEncoding.Unicode.GetByteCount(optionD);
+            int totalByteCount = countBytesQuestion + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD;
 
-            byte[] trivQues = new byte[lenTotal];
-            byte[] bytesQues = Encoding.UTF8.GetBytes(question);
-            bytesQues.CopyTo(trivQues, 0);
-            byte[] bytesOpA = Encoding.UTF8.GetBytes(optionA);
-            bytesOpA.CopyTo(trivQues, lenQuestion + 1);
-            byte[] bytesOpB = Encoding.UTF8.GetBytes(optionB);
-            bytesOpB.CopyTo(trivQues, lenOpA + 1);
-            byte[] bytesOpC = Encoding.UTF8.GetBytes(optionC);
-            bytesOpC.CopyTo(trivQues, lenOpB + 1);
-            byte[] bytesOpD = Encoding.UTF8.GetBytes(optionD);
-            bytesOpD.CopyTo(trivQues, lenOpC + 1);
-            return trivQues;
+            byte[] triviaQues = new byte[totalByteCount];
+
+            byte[] quesByte = Encoding.UTF8.GetBytes(question);
+            byte[] opAByte = Encoding.UTF8.GetBytes(optionA);
+            byte[] opBByte = Encoding.UTF8.GetBytes(optionB);
+            byte[] opCByte = Encoding.UTF8.GetBytes(optionC);
+            byte[] opDByte = Encoding.UTF8.GetBytes(optionD);
+
+            quesByte.CopyTo(triviaQues, 0);
+
+            string delim = "*";
+            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + 1);
+
+            opAByte.CopyTo(triviaQues, countBytesQuestion + countBytesDelim + 1);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + countBytesDelim + countBytesOpA + 1);
+
+            opBByte.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA + 1);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA + countBytesOpB + 1);
+
+            opCByte.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB + 1);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + 1);
+
+            opDByte.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + 1);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD + 1);
+
+            return triviaQues;
         }
     }
 
@@ -166,5 +176,196 @@ namespace TriviaGameProtocol
             return AnsAndRes;
         }
     }
+
+    public class NextPlayerTurn : MessageType
+    {
+        public int whosTurn;
+        public int curNumCards;   // curNumCards of other player
+
+        public override void FromBytes(byte[] bytes)
+        {
+            byte[] whosTurnBytes = new byte[4];
+            byte[] curNumCardsBytes = new byte[4];
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                if (i <= 4)
+                {
+                    whosTurnBytes[i] = bytes[i];
+                }
+                else
+                {
+                    curNumCardsBytes[i] = bytes[i];
+                }
+            }
+
+            whosTurn = BitConverter.ToInt32(whosTurnBytes);
+            curNumCards = BitConverter.ToInt32(curNumCardsBytes);
+        }
+
+        public override string MessageID()
+        {
+            return "NextPlayerTurn";
+        }
+
+        public override byte[] ToBytes()
+        {
+            // an int in a 64 bit system is 4 bytes
+            byte[] nextPlayerTurn = new byte[8];
+
+            byte[] whosTurnByte = BitConverter.GetBytes(whosTurn);
+            whosTurnByte.CopyTo(nextPlayerTurn, 0);
+
+            byte[] curNumCardsByte = BitConverter.GetBytes(curNumCards);
+            curNumCardsByte.CopyTo(nextPlayerTurn, 4);
+
+            return nextPlayerTurn;
+        }
+    }
+
+    public class Winner : MessageType
+    {
+        public string winner;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            winner = Encoding.UTF8.GetString(bytes);
+        }
+
+        public override string MessageID()
+        {
+            return "Winner";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return Encoding.UTF8.GetBytes(winner);
+        }
+    }
+
+    public class ListRoomsRequest : MessageType
+    {
+        public override void FromBytes(byte[] bytes)
+        {}
+
+        public override string MessageID()
+        {
+            return "ListRoomsRequest";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
+        }
+    }
+
+    public class RoomList : MessageType
+    {
+        public string roomID;
+        public string player1;
+        public string player2;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            string bigString =Encoding.UTF8.GetString(bytes);
+            string[] splitString = bigString.Split("*");
+            roomID = splitString[0];
+            player1 = splitString[1];
+            player2 = splitString[2];
+        }
+
+        public override string MessageID()
+        {
+            return "RoomList";
+        }
+
+        public override byte[] ToBytes()
+        {
+            int countBytesRoomID = ASCIIEncoding.Unicode.GetByteCount(roomID);
+            int countBytesP1 = ASCIIEncoding.Unicode.GetByteCount(player1);
+            int countBytesP2 = ASCIIEncoding.Unicode.GetByteCount(player2);
+            int totalByteCount = countBytesRoomID + countBytesP1 + countBytesP2;
+
+            byte[] roomList = new byte[totalByteCount];
+
+            byte[] roomIDByte = Encoding.UTF8.GetBytes(roomID);
+            byte[] player1Byte = Encoding.UTF8.GetBytes(player1);
+            byte[] player2Byte = Encoding.UTF8.GetBytes(player2);
+
+            roomIDByte.CopyTo(roomList, 0);
+
+            string delim = "*";
+            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
+            delimBytes.CopyTo(roomList, countBytesRoomID + 1);
+
+            player1Byte.CopyTo(roomList, countBytesRoomID + countBytesDelim + 1);
+
+            delimBytes.CopyTo(roomList, countBytesRoomID + countBytesDelim + countBytesP1 + 1);
+
+            player2Byte.CopyTo(roomList, totalByteCount + (2 * countBytesDelim) + 1);
+
+            return roomList;
+        }
+    }
+
+    public class Unregister : MessageType
+    {
+        public string name;
+        public string roomID;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            string bigString = Encoding.UTF8.GetString(bytes);
+            string[] splitString = bigString.Split("*");
+            name = splitString[0];
+            roomID = splitString[1];
+        }
+
+        public override string MessageID()
+        {
+            return "Unregister";
+        }
+
+        public override byte[] ToBytes()
+        {
+            int countBytesName = ASCIIEncoding.Unicode.GetByteCount(name);
+            int countBytesRoomID = ASCIIEncoding.Unicode.GetByteCount(roomID);
+            int totalByteCount = countBytesName + countBytesRoomID;
+
+            byte[] unreg = new byte[totalByteCount];
+
+            byte[] nameByte = Encoding.UTF8.GetBytes(name);
+            byte[] roomIDByte = Encoding.UTF8.GetBytes(roomID);
+
+            nameByte.CopyTo(unreg, 0);
+
+            string delim = "*";
+            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
+            delimBytes.CopyTo(unreg, countBytesName + 1);
+            
+            roomIDByte.CopyTo(unreg, countBytesName + countBytesDelim + 1);
+
+            return unreg;
+        }
+    }
+
+    public class ClientDisconnect : MessageType
+    {
+        public override void FromBytes(byte[] bytes)
+        {}
+
+        public override string MessageID()
+        {
+            return "ClientDisconnect";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
+        }
+    }
+
 }
 

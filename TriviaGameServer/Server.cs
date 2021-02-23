@@ -48,7 +48,7 @@ namespace TriviaGameServer
                 string opB = message[4];
                 string opC = message[5];
                 string opD = message[6];
-                TriviaQuestion Q = new TriviaQuestion();
+                TriviaQuestion Q = new TriviaQuestion(); 
                 Q.question = q;
                 Q.optionA = opA;
                 Q.optionA = opB;
@@ -61,7 +61,7 @@ namespace TriviaGameServer
                 AnswerAndResult AandR = new AnswerAndResult();
                 AandR.correctAnswer = corAns;
 
-                // need data structure to figure out with room to save info to with connection (hashmap?)
+                // need data structure to figure out with room to save info to with connection (hashmap on server?)
 
 
             });
