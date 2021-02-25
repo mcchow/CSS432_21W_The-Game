@@ -91,7 +91,9 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<Unregister>((Unregister msg, Connection c) =>
             {
-                connectionMap.TryUpdate(c, null, null);
+                Player player;
+                connectionMap.TryGetValue(c, out player);
+                connectionMap.TryUpdate(c, null, player);
             });
             protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
             {
