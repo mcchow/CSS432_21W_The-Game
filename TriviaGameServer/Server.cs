@@ -6,6 +6,7 @@ using TriviaGameProtocol;
 using System.Threading;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace TriviaGameServer
 {
@@ -22,6 +23,7 @@ namespace TriviaGameServer
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
 
+        private ConcurrentDictionary<Connection, Player> connectionMap;
         // database connection here? is thread safe?
 
         public Server()
@@ -32,6 +34,7 @@ namespace TriviaGameServer
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
+            connectionMap = new ConcurrentDictionary<Connection, Player>();
         }
 
         private void SetupProtocol()
@@ -63,12 +66,82 @@ namespace TriviaGameServer
 
                 // need data structure to figure out with room to save info to with connection (hashmap on server?)
 
+                //TODO Complete this message handler
 
+            });
+            protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
+            {
+                //TODO
+                // Get Room instance
+                // Check if it is player's turn to answer (validation)
+                // if answer is correct:
+                //   increment players correct answer count
+                //   check win condition
+                //   if player won:
+                //     Send Winner message to both players
+                //     return
+                // send AnswerAndResult mesage to both players
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
+                connectionMap.TryAdd(c, new Player(registration));
+
                 Console.WriteLine("Welcome " + registration.Name + "!");
                 c.Send(new AskForCard());
+            });
+            protocol.RegisterMessageHandler<Unregister>((Unregister msg, Connection c) =>
+            {
+                Player player;
+                connectionMap.TryGetValue(c, out player);
+                connectionMap.TryUpdate(c, null, player);
+            });
+            protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
+            {
+                //TODO What do we need to do here?
+            });
+            protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
+            {
+                //TODO
+                // Check if req.RoomID is a valid room ID
+                // Get Room instance
+                // if room full:
+                //   send RoomFull message to player
+                // else:
+                //   Update connection-room mapping to reference room instance
+                //   Update room instance to reference/include player info
+                // choose who goes first, set turn info in room instance
+                // send AskForCard to player who goes first
+                // send NextPlayerTurn to player who goes second
+            });
+            protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
+            {
+                // Get Room instance
+                // remove player info from room list
+                // update connection room mapping to map c to null
+                // Send OpponentQuit message to opponent
+            });
+            protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
+            {
+                /// Sends one RoomList message to the client for each room that exists.
+                
+                //TODO replace mock data below with actual room list data
+                RoomList rl = new RoomList();
+                rl.roomID = "First Room";
+                rl.player1 = "Alice";
+                rl.player2 = "Bob";
+                c.Send(rl);
+                rl.roomID = "Second Room";
+                rl.player1 = "Josh";
+                rl.player2 = "";
+                c.Send(rl);
+                rl.roomID = "Third Room";
+                rl.player1 = "";
+                rl.player2 = "";
+                c.Send(rl);
+                rl.roomID = "Another Room";
+                rl.player1 = "";
+                rl.player2 = "Player Two";
+                c.Send(rl);
             });
         }
 

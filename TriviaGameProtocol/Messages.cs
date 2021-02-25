@@ -60,6 +60,59 @@ namespace TriviaGameProtocol
         }
     }
 
+    public class JoinRoom : MessageType
+    {
+        public string RoomID;
+
+        public override void FromBytes(byte[] bytes)
+        {
+            RoomID = Encoding.UTF8.GetString(bytes);
+        }
+
+        public override string MessageID()
+        {
+            return "JoinRoom";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return Encoding.UTF8.GetBytes(RoomID);
+        }
+    }
+
+    public class LeaveRoom : MessageType
+    {
+        public override void FromBytes(byte[] bytes)
+        {
+        }
+
+        public override string MessageID()
+        {
+            return "LeaveRoom";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
+        }
+    }
+    public class OpponentQuit : MessageType
+    {
+        public override void FromBytes(byte[] bytes)
+        {
+        }
+
+        public override string MessageID()
+        {
+            return "OpponentQuit";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
+        }
+    }
+
     // mariana: TriviaQuestion, PlayerAnswer, and AnswerAndResult
     public class TriviaQuestion : MessageType    
     {

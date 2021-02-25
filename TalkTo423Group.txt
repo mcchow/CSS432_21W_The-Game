@@ -1,0 +1,61 @@
+QUESTIONS------------------------------------------------------------------------
+Should Register MessageType have string for room number? 
+	Register does not need roomID, just name (added JoinRoom and LeaveRoom)
+
+Should Unregister MessageType have string Name like Register does?
+	// update Unregister (see above for reason)
+
+What member variables should RoomList have?
+	roomID, player1, player2?
+	Changed RoomList to Room
+
+ListRoomsRequest MessageType member variables: nothing?
+	Yes
+
+Database: do we need questionID? What are we using it for?
+	database does not need questionID
+	update datatbase connection
+
+
+TO-DO----------------------------------------------------------------------------
+recode TriviaQuestion (DONE)
+
+Ask prof peng after class about Unregister can be same as ClientDisconnect (Josh)
+
+Change line 126 to RoomEntry instead of RoomList (Mariana)
+
+Implement MessageHandlers (Josh, Martin, Mariana)
+	Finish ChosenCard (Mariana)
+	PlayerAnswer (Josh)
+	ClientDisconnect (ask Peng first) (Mariana)
+	JoinRoom (Martin)
+	LeaveRoom (Josh)
+	ListRoomsRequest (Martin)
+	
+Fix Connection.Send() (Josh)
+
+Testing (Josh, Mariana) 
+	Update test code
+
+Documentation (Josh, Mariana)
+
+update Unregister MessageType (Mariana)
+	Register does not need roomID, just name (added JoinRoom and LeaveRoom)
+
+update datatbase connection (Mariana)
+	database does not need questionID
+
+UI Screens (Martin)
+
+
+NOTES---------------------------------------------------------------------------
+\0 is the NULL char for strings
+
+map on server connections to players 
+	players have Room object (this could be null)
+
+Game Screen 1: gid rid of submit button
+	All game screens
+	Timeout at 10 seconds for showing the correct answer 
+	Timeout at 15 seconds for answering the trivia question 
+
