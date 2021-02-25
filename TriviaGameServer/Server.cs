@@ -47,10 +47,10 @@ namespace TriviaGameServer
                 List<string> message = setUpConnToDatabase(card.Card);
                 
                 string q = message[0];
-                string opA = message[3];
-                string opB = message[4];
-                string opC = message[5];
-                string opD = message[6];
+                string opA = message[2];
+                string opB = message[3];
+                string opC = message[4];
+                string opD = message[5];
                 TriviaQuestion Q = new TriviaQuestion(); 
                 Q.question = q;
                 Q.optionA = opA;
@@ -58,15 +58,17 @@ namespace TriviaGameServer
                 Q.optionA = opC;
                 Q.optionA = opD;
 
-                string questionID = message[1];
+                // string questionID = message[1];
 
-                char corAns = char.Parse(message[2]);
+                char corAns = char.Parse(message[1]);
                 AnswerAndResult AandR = new AnswerAndResult();
                 AandR.correctAnswer = corAns;
+                // hashmap connection to player (get curNumCards from Player and whosTurn from Room in Player when call 
+                // AnswerAndResult handler?) 
 
-                // need data structure to figure out with room to save info to with connection (hashmap on server?)
 
                 //TODO Complete this message handler
+
 
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
@@ -125,7 +127,7 @@ namespace TriviaGameServer
                 /// Sends one RoomList message to the client for each room that exists.
                 
                 //TODO replace mock data below with actual room list data
-                RoomList rl = new RoomList();
+                RoomEntry rl = new RoomEntry();
                 rl.roomID = "First Room";
                 rl.player1 = "Alice";
                 rl.player2 = "Bob";
@@ -185,9 +187,10 @@ namespace TriviaGameServer
                 connection.Open();
 
                 var command = connection.CreateCommand();
+                // got rid of questionID
                 command.CommandText =
                 @"
-                SELECT questionDescription, questionID, correctAnswer, optionA, optionB, optionC, optionD
+                SELECT questionDescription, correctAnswer, optionA, optionB, optionC, optionD
                 FROM Question
                 WHERE category = $catCard  
                 ORDER BY RANDOM()
@@ -201,7 +204,7 @@ namespace TriviaGameServer
                     {
                         string result;
 
-                        for (int i = 0; i < 7; i++)
+                        for (int i = 0; i < 6; i++)
                         {
                             result = reader.GetString(i);
                             message.Add(result);

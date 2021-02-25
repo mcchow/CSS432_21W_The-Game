@@ -365,14 +365,10 @@ namespace TriviaGameProtocol
     public class Unregister : MessageType
     {
         public string name;
-        public string roomID;
 
         public override void FromBytes(byte[] bytes)
         {
-            string bigString = Encoding.UTF8.GetString(bytes);
-            string[] splitString = bigString.Split("*");
-            name = splitString[0];
-            roomID = splitString[1];
+            name = Encoding.UTF8.GetString(bytes);
         }
 
         public override string MessageID()
@@ -382,25 +378,7 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            int countBytesName = ASCIIEncoding.Unicode.GetByteCount(name);
-            int countBytesRoomID = ASCIIEncoding.Unicode.GetByteCount(roomID);
-            int totalByteCount = countBytesName + countBytesRoomID;
-
-            byte[] unreg = new byte[totalByteCount];
-
-            byte[] nameByte = Encoding.UTF8.GetBytes(name);
-            byte[] roomIDByte = Encoding.UTF8.GetBytes(roomID);
-
-            nameByte.CopyTo(unreg, 0);
-
-            string delim = "*";
-            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
-            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
-            delimBytes.CopyTo(unreg, countBytesName + 1);
-            
-            roomIDByte.CopyTo(unreg, countBytesName + countBytesDelim + 1);
-
-            return unreg;
+            return Encoding.UTF8.GetBytes(name);
         }
     }
 
