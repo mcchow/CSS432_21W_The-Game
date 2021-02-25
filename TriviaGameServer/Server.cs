@@ -63,12 +63,80 @@ namespace TriviaGameServer
 
                 // need data structure to figure out with room to save info to with connection (hashmap on server?)
 
+                //TODO Complete this message handler
 
+            });
+            protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
+            {
+                //TODO
+                // Get Room instance
+                // Check if it is player's turn to answer (validation)
+                // if answer is correct:
+                //   increment players correct answer count
+                //   check win condition
+                //   if player won:
+                //     Send Winner message to both players
+                //     return
+                // send AnswerAndResult mesage to both players
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
+                //TODO add Connection to Connection-Room mapping (probably w/ null Room instance)
+
                 Console.WriteLine("Welcome " + registration.Name + "!");
                 c.Send(new AskForCard());
+            });
+            protocol.RegisterMessageHandler<Unregister>((Unregister msg, Connection c) =>
+            {
+                //TODO remove Connection from Connection-Room mapping
+            });
+            protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
+            {
+                //TODO What do we need to do here?
+            });
+            protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
+            {
+                //TODO
+                // Check if req.RoomID is a valid room ID
+                // Get Room instance
+                // if room full:
+                //   send RoomFull message to player
+                // else:
+                //   Update connection-room mapping to reference room instance
+                //   Update room instance to reference/include player info
+                // choose who goes first, set turn info in room instance
+                // send AskForCard to player who goes first
+                // send NextPlayerTurn to player who goes second
+            });
+            protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
+            {
+                // Get Room instance
+                // remove player info from room list
+                // update connection room mapping to map c to null
+                // Send OpponentQuit message to opponent
+            });
+            protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
+            {
+                /// Sends one RoomList message to the client for each room that exists.
+                
+                //TODO replace mock data below with actual room list data
+                RoomList rl = new RoomList();
+                rl.roomID = "First Room";
+                rl.player1 = "Alice";
+                rl.player2 = "Bob";
+                c.Send(rl);
+                rl.roomID = "Second Room";
+                rl.player1 = "Josh";
+                rl.player2 = "";
+                c.Send(rl);
+                rl.roomID = "Third Room";
+                rl.player1 = "";
+                rl.player2 = "";
+                c.Send(rl);
+                rl.roomID = "Another Room";
+                rl.player1 = "";
+                rl.player2 = "Player Two";
+                c.Send(rl);
             });
         }
 
