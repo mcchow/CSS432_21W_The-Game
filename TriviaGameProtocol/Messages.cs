@@ -259,7 +259,7 @@ namespace TriviaGameProtocol
         }
     }
 
-    public class RoomList : MessageType
+    public class RoomEntry : MessageType
     {
         public string roomID;
         public string player1;
@@ -267,7 +267,7 @@ namespace TriviaGameProtocol
 
         public override void FromBytes(byte[] bytes)
         {
-            string bigString =Encoding.UTF8.GetString(bytes);
+            string bigString = Encoding.UTF8.GetString(bytes);
             string[] splitString = bigString.Split("*");
             roomID = splitString[0];
             player1 = splitString[1];
@@ -276,7 +276,7 @@ namespace TriviaGameProtocol
 
         public override string MessageID()
         {
-            return "RoomList";
+            return "RoomEntry";
         }
 
         public override byte[] ToBytes()
@@ -286,26 +286,26 @@ namespace TriviaGameProtocol
             int countBytesP2 = ASCIIEncoding.Unicode.GetByteCount(player2);
             int totalByteCount = countBytesRoomID + countBytesP1 + countBytesP2;
 
-            byte[] roomList = new byte[totalByteCount];
+            byte[] roomEntry = new byte[totalByteCount];
 
             byte[] roomIDByte = Encoding.UTF8.GetBytes(roomID);
             byte[] player1Byte = Encoding.UTF8.GetBytes(player1);
             byte[] player2Byte = Encoding.UTF8.GetBytes(player2);
 
-            roomIDByte.CopyTo(roomList, 0);
+            roomIDByte.CopyTo(roomEntry, 0);
 
             string delim = "*";
             int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
             byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
-            delimBytes.CopyTo(roomList, countBytesRoomID + 1);
+            delimBytes.CopyTo(roomEntry, countBytesRoomID + 1);
 
-            player1Byte.CopyTo(roomList, countBytesRoomID + countBytesDelim + 1);
+            player1Byte.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + 1);
 
-            delimBytes.CopyTo(roomList, countBytesRoomID + countBytesDelim + countBytesP1 + 1);
+            delimBytes.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + countBytesP1 + 1);
 
-            player2Byte.CopyTo(roomList, totalByteCount + (2 * countBytesDelim) + 1);
+            player2Byte.CopyTo(roomEntry, totalByteCount + (2 * countBytesDelim) + 1);
 
-            return roomList;
+            return roomEntry;
         }
     }
 
