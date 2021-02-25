@@ -6,6 +6,7 @@ using TriviaGameProtocol;
 using System.Threading;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 
 namespace TriviaGameServer
 {
@@ -22,6 +23,7 @@ namespace TriviaGameServer
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
 
+        private ConcurrentDictionary<Connection, Player> connectionMap;
         // database connection here? is thread safe?
 
         public Server()
@@ -32,6 +34,7 @@ namespace TriviaGameServer
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
+            connectionMap = new ConcurrentDictionary<Connection, Player>();
         }
 
         private void SetupProtocol()
@@ -81,14 +84,14 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
-                //TODO add Connection to Connection-Room mapping (probably w/ null Room instance)
+                connectionMap.TryAdd(c, new Player(registration));
 
                 Console.WriteLine("Welcome " + registration.Name + "!");
                 c.Send(new AskForCard());
             });
             protocol.RegisterMessageHandler<Unregister>((Unregister msg, Connection c) =>
             {
-                //TODO remove Connection from Connection-Room mapping
+                connectionMap.TryUpdate(c, null, null);
             });
             protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
             {
