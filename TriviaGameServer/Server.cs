@@ -73,20 +73,39 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
             {
-                //TODO
-                // Get Room instance
-                // Check if it is player's turn to answer (validation)
-                // if answer is correct:
-                //   increment players correct answer count
-                //   check win condition
-                //   if player won:
-                //     Send Winner message to both players
-                //     return
-                // send AnswerAndResult mesage to both players
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                Room room = player.Room;
+
+                if (room == null || room.playerList[room.whosTurn] != player)
+                {
+                    return;
+                }
+                //TODO perhaps game rule logic should be moved into Room?
+                if (msg.playerAns == room.answer)
+                {
+                    player.Points++;
+                    if (player.Points > 6) //TODO 
+                    {
+                        Winner winner = new Winner();
+                        winner.winner = player.Name;
+                        foreach (Player p in room.playerList)
+                        {
+                            p.Connection.Send(winner);
+                            return;
+                        }
+                    }
+                }
+                AnswerAndResult answerAndResult = new AnswerAndResult();
+                answerAndResult.correctAnswer = room.answer;
+                foreach (Player p in room.playerList)
+                {
+                    p.Connection.Send(answerAndResult);
+                }
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
-                connectionMap.TryAdd(c, new Player(registration));
+                connectionMap.TryAdd(c, new Player(registration, c));
 
                 Console.WriteLine("Welcome " + registration.Name + "!");
                 c.Send(new AskForCard());
@@ -117,10 +136,16 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
             {
-                // Get Room instance
-                // remove player info from room list
-                // update connection room mapping to map c to null
-                // Send OpponentQuit message to opponent
+                Player player;
+                connectionMap.TryGetValue(c, out player);
+                Room room = player.Room;
+                if (room == null)
+                {
+                    return;
+                }
+                room.playerList.Remove(player);
+                player.Room = null;
+                room.playerList[0].Connection.Send(new OpponentQuit());
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
