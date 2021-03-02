@@ -20,14 +20,16 @@ namespace TriviaGameServer
         private Protocol protocol;
         private Socket socket;
         private SemaphoreSlim connectionPool;
+        private QuestionSource questionSource;
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
         // database connection here? is thread safe?
 
-        public Server()
+        public Server(QuestionSource qsrc)
         {
+            questionSource = qsrc;
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             IPEndPoint serverEndPoint = new IPEndPoint(0, 8080);
@@ -42,25 +44,12 @@ namespace TriviaGameServer
             protocol = new Protocol();
             protocol.RegisterMessageHandler<ChosenCard>((ChosenCard card, Connection c) =>
             {
-                Console.WriteLine("Chose Card: " + card.Card); 
+                Console.WriteLine("Chose Card: " + card.Card);
 
-                List<string> message = setUpConnToDatabase(card.Card);
-                
-                string q = message[0];
-                string opA = message[2];
-                string opB = message[3];
-                string opC = message[4];
-                string opD = message[5];
-                TriviaQuestion Q = new TriviaQuestion(); 
-                Q.question = q;
-                Q.optionA = opA;
-                Q.optionA = opB;
-                Q.optionA = opC;
-                Q.optionA = opD;
+                Question question = questionSource.GetQuestion(card.Card);
+                TriviaQuestion Q = question.question;
+                char corAns = question.answer;
 
-                // string questionID = message[1];
-
-                char corAns = char.Parse(message[1]);
                 AnswerAndResult AandR = new AnswerAndResult();
                 AandR.correctAnswer = corAns;
                 // hashmap connection to player (get curNumCards from Player and whosTurn from Room in Player when call 
@@ -183,7 +172,7 @@ namespace TriviaGameServer
         }
         static void Main(string[] args)
         {
-            Server s = new Server();
+            Server s = new Server(new SqliteQuestionSource());
             s.listen();
         }
 
@@ -201,46 +190,6 @@ namespace TriviaGameServer
             }
             connectionPool.Release();
         }
-
-        private List<string> setUpConnToDatabase(string category)
-        {
-            List<string> message = new List<string>();
-
-            // using Microsoft.Data.Sqlite
-            using (var connection = new SqliteConnection("Data Source=TriviaGame.db"))
-            {
-                connection.Open();
-
-                var command = connection.CreateCommand();
-                // got rid of questionID
-                command.CommandText =
-                @"
-                SELECT questionDescription, correctAnswer, optionA, optionB, optionC, optionD
-                FROM Question
-                WHERE category = $catCard  
-                ORDER BY RANDOM()
-                LIMIT 1
-                ";
-                command.Parameters.AddWithValue("$catCard", category);
-
-                using (var reader = command.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        string result;
-
-                        for (int i = 0; i < 6; i++)
-                        {
-                            result = reader.GetString(i);
-                            message.Add(result);
-                        }
-                    }
-                }
-            }
-
-            return message;
-        }
-
 
     }
 }
