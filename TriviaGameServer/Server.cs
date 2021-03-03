@@ -51,16 +51,11 @@ namespace TriviaGameServer
                 TriviaQuestion Q = question.question;
                 char corAns = question.answer;
 
-
-                AnswerAndResult AandR = new AnswerAndResult();
-                AandR.correctAnswer = corAns;
-                // hashmap connection to player (get curNumCards from Player and whosTurn from Room in Player when call 
-                // AnswerAndResult handler?) 
-
-
-                //TODO Complete this message handler
-
-
+                // save the correct answer into the room using the player's connection
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                Room room = player.Room;
+                room.answer = corAns;
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
             {
@@ -109,12 +104,14 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
             {
-                if (connectionMap.ContainsKey(c))
+                Player player = null;
+
+                // check if player in connection map, if so remove
+                if (connectionMap.TryGetValue(c, out player))
                 {
-                    Player player;
-                    connectionMap.TryGetValue(c, out player);
                     connectionMap.TryUpdate(c, null, player);
                 }
+
                 c.Disconnect();
             });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
