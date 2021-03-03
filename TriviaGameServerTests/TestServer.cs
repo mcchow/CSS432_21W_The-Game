@@ -96,17 +96,16 @@ namespace TriviaGameServerTests
     public class ClientServerSeq : IDisposable
     {
         public MockServer server;
-        public MockClient client;
-        public MockClient client2;
+        public List<MockClient> clients;
         public List<SeqEvent> sequence;
         private HashSet<String> messageTypes;
-        private List<MessageType> recieved;
-        private List<MessageType> recieved2;
+        public List<List<MessageType>> recieved;
+        private string errorMessagePrefix;
 
         public struct SeqEvent
         {
             public bool ClearRecieved;
-            public bool PlayerOne;
+            public int PlayerIndex;
             public bool Expectation;
             public MessageType Message;
             public string MessageID;
@@ -116,51 +115,42 @@ namespace TriviaGameServerTests
         {
             // Retrieves expected question category
             server = new MockServer();
-            client = new MockClient();
-            client2 = new MockClient();
+            clients = new List<MockClient>();
+            clients.Add(new MockClient());
+            clients.Add(new MockClient());
             sequence = new List<SeqEvent>();
             messageTypes = new HashSet<string>();
-            recieved = new List<MessageType>();
-            recieved2 = new List<MessageType>();
+            recieved = new List<List<MessageType>>();
+            recieved.Add(new List<MessageType>());
+            recieved.Add(new List<MessageType>());
+            errorMessagePrefix = "";
         }
 
         public void Dispose()
         {
             server.Stop();
-            client.Stop();
-            client2.Stop();
+            foreach (MockClient client in clients)
+            {
+                client.Stop();
+            }
         }
 
         public ClientServerSeq expect<T>(T message) where T : MessageType, new()
         {
-            MessageType mtype = new T();
-            if (!messageTypes.Contains(mtype.MessageID())) {
-                client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
-                {
-                    recieved.Add(m);
-                });
-            }
-            SeqEvent e = new SeqEvent();
-            e.PlayerOne = true;
-            e.Expectation = true;
-            e.Message = message;
-            e.MessageID = mtype.MessageID();
-            sequence.Add(e);
-            return this;
+            return expect<T>(0, message);
         }
 
-        public ClientServerSeq expect2<T>(T message) where T : MessageType, new()
+        public ClientServerSeq expect<T>(int playerIndex = 0, T message = null) where T : MessageType, new()
         {
             MessageType mtype = new T();
-            if (!messageTypes.Contains(mtype.MessageID()))
-            {
-                client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
+            if (!messageTypes.Contains(mtype.MessageID())) {
+                clients[playerIndex].protocol.RegisterMessageHandler<T>((T m, Connection c) =>
                 {
-                    recieved2.Add(m);
+                    recieved[playerIndex].Add(m);
                 });
             }
             SeqEvent e = new SeqEvent();
-            e.PlayerOne = false;
+            e.PlayerIndex = playerIndex;
             e.Expectation = true;
             e.Message = message;
             e.MessageID = mtype.MessageID();
@@ -170,18 +160,13 @@ namespace TriviaGameServerTests
 
         public ClientServerSeq send(MessageType message)
         {
-            SeqEvent e = new SeqEvent();
-            e.PlayerOne = true;
-            e.Expectation = false;
-            e.Message = message;
-            sequence.Add(e);
-            return this;
+            return send(0, message);
         }
 
-        public ClientServerSeq send2(MessageType message)
+        public ClientServerSeq send(int playerIndex, MessageType message)
         {
             SeqEvent e = new SeqEvent();
-            e.PlayerOne = false;
+            e.PlayerIndex = playerIndex;
             e.Expectation = false;
             e.Message = message;
             sequence.Add(e);
@@ -201,49 +186,46 @@ namespace TriviaGameServerTests
             foreach (SeqEvent e in sequence) {
                 if (e.ClearRecieved)
                 {
-                    recieved.Clear();
-                    recieved2.Clear();
+                    foreach (List<MessageType> recievedList in recieved)
+                    {
+                        recievedList.Clear();
+                    }
+                    errorMessagePrefix += ".clearRecieved()\n";
                     continue;
                 }
                 if (!e.Expectation)
                 {
-                    Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
-                    Assert.True(recieved2.Count == 0, "Recieved an unexpected message.");
-                    if (e.PlayerOne)
-                    {
-                        client.connection.Send(e.Message);
-                    } else
-                    {
-                        client2.connection.Send(e.Message);
-                    }
+                    errorMessagePrefix += ".send("+e.PlayerIndex+","+e.Message.MessageID()+ ")\n";
+                    checkForUnexpectedMessage();
+                    clients[e.PlayerIndex].connection.Send(e.Message);
                 } else
                 {
-                    System.Threading.Thread.Sleep(1);
-                    client.protocol.HandleMessages();
-                    client2.protocol.HandleMessages();
-                    if (e.PlayerOne)
+                    errorMessagePrefix += ".expect<"+e.MessageID+">(" + e.PlayerIndex + ", ...)\n";
+                    Thread.Sleep(1);
+                    foreach (MockClient c in clients)
                     {
-                        Assert.True(recieved.Count > 0, "Expected to recieve a " + e.MessageID + " message.");
-                        Assert.True(recieved[0].MessageID().Equals(e.MessageID), "Expected to recieve a " + e.MessageID + " message.");
-                        if (e.Message != null)
-                        {
-                            Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
-                        }
-                        recieved.RemoveAt(0);
-                    } else {
-                        Assert.True(recieved2.Count > 0, "Expected to recieve a " + e.MessageID + " message.");
-                        Assert.True(recieved2[0].MessageID().Equals(e.MessageID), "Expected to recieve a " + e.MessageID + " message.");
-                        if (e.Message != null)
-                        {
-                            Assert.True(recieved2[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
-                        }
-                        recieved2.RemoveAt(0);
+                        c.protocol.HandleMessages();
                     }
+                    Assert.True(recieved[e.PlayerIndex].Count > 0, errorMessagePrefix + ": Client " + e.PlayerIndex + " expected to recieve a " + e.MessageID + " message.");
+                    Assert.True(recieved[e.PlayerIndex][0].MessageID().Equals(e.MessageID), errorMessagePrefix + ": Client " + e.PlayerIndex + " expected to recieve a " + e.MessageID + " message.");
+                    if (e.Message != null)
+                    {
+                        Assert.True(recieved[e.PlayerIndex][0].Equals(e.Message), errorMessagePrefix + ": Client " + e.PlayerIndex + " recieved message of expected type, but message contents were unexpected.");
+                    }
+                    recieved[e.PlayerIndex].RemoveAt(0);
                 }
             }
-            Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
-            Assert.True(recieved2.Count == 0, "Recieved an unexpected message.");
+            checkForUnexpectedMessage();
+            errorMessagePrefix += ".test()\n";
             return this;
+        }
+
+        private void checkForUnexpectedMessage()
+        {
+            for (int i = 0; i < recieved.Count; ++i)
+            {
+                Assert.True(recieved[i].Count == 0, errorMessagePrefix + ": Client " + i + " recieved an unexpected message.");
+            }
         }
 
     }
@@ -287,12 +269,12 @@ namespace TriviaGameServerTests
             Register register = new Register();
             register.Name = "PlayerName!";
             Register register2 = new Register();
-            register.Name = "Player2Name!";
+            register2.Name = "Player2Name!";
             ListRoomsRequest listRoomsRequest = new ListRoomsRequest();
             JoinRoom joinRoom = new JoinRoom();
             AnswerAndResult answerAndResult = new AnswerAndResult();
             answerAndResult.correctAnswer = 'C';
-            seq.client.protocol.RegisterMessageHandler<RoomEntry>((RoomEntry roomEntry, Connection c) =>
+            seq.clients[0].protocol.RegisterMessageHandler<RoomEntry>((RoomEntry roomEntry, Connection c) =>
             {
                 joinRoom.RoomID = roomEntry.roomID;
             });
@@ -300,15 +282,15 @@ namespace TriviaGameServerTests
             choseCard.Card = "Category"; //TODO use correct card category here!
             seq.send(register)
                 .send(listRoomsRequest)
-                .expect<RoomEntry>(null) // We should get at least one RoomEntry message, but might get more, so
+                .expect<RoomEntry>() // We should get at least one RoomEntry message, but might get more, so
                 .clearRecieved() // we clear the recieved message queue to prevent test failure from unexpected messages.
                 .send(joinRoom)
-                .send2(register2)
-                .send2(joinRoom)
+                .send(1, register2)
+                .send(1, joinRoom)
                 .expect<AskForCard>(new AskForCard())
                 .send(choseCard)
                 .expect<AnswerAndResult>(answerAndResult)
-                .expect2<AnswerAndResult>(answerAndResult)
+                .expect<AnswerAndResult>(1, answerAndResult)
                 .test();
         }
 
@@ -380,7 +362,7 @@ namespace TriviaGameServerTests
         public void TestListRoomsRequest()
         {
             seq.send(new ListRoomsRequest())
-                .expect<RoomEntry>(null)
+                .expect<RoomEntry>()
                 .clearRecieved()
                 .test();
         }

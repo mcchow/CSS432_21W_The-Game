@@ -94,7 +94,6 @@ namespace TriviaGameServer
                 connectionMap.TryUpdate(c, new Player(registration, c), null);
 
                 Console.WriteLine("Welcome " + registration.Name + "!");
-                c.Send(new AskForCard());
             });
             protocol.RegisterMessageHandler<Unregister>((Unregister msg, Connection c) =>
             {

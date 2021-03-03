@@ -37,6 +37,16 @@ namespace TriviaGameProtocol
     {
         public string Card;
 
+        public ChosenCard()
+        {
+            Card = null;
+        }
+
+        public ChosenCard(string Card)
+        {
+            this.Card = Card;
+        }
+
         public override void FromBytes(byte[] bytes)
         {
             Card = Encoding.UTF8.GetString(bytes);
@@ -68,6 +78,17 @@ namespace TriviaGameProtocol
     public class Register : MessageType
     {
         public string Name;
+
+        public Register()
+        {
+            Name = null;
+        }
+
+        public Register(string name)
+        {
+            Name = name;
+        }
+
         public override void FromBytes(byte[] bytes)
         {
             Name = Encoding.UTF8.GetString(bytes);
@@ -100,6 +121,15 @@ namespace TriviaGameProtocol
     {
         public string RoomID;
 
+        public JoinRoom()
+        {
+            RoomID = null;
+        }
+
+        public JoinRoom(string roomID)
+        {
+            RoomID = roomID;
+        }
         public override void FromBytes(byte[] bytes)
         {
             RoomID = Encoding.UTF8.GetString(bytes);
@@ -194,6 +224,20 @@ namespace TriviaGameProtocol
         public string optionC;
         public string optionD;
 
+        public TriviaQuestion()
+        {
+
+        }
+
+        public TriviaQuestion(string question, string optionA, string optionB, string optionC, string optionD)
+        {
+            this.question = question;
+            this.optionA = optionA;
+            this.optionB = optionB;
+            this.optionC = optionC;
+            this.optionD = optionD;
+        }
+
         public override void FromBytes(byte[] bytes)
         {
             string bigString = Encoding.UTF8.GetString(bytes);
@@ -269,6 +313,14 @@ namespace TriviaGameProtocol
     {
         public char playerAns;
 
+        public PlayerAnswer()
+        {
+        }
+        public PlayerAnswer(char playerAns)
+        {
+            this.playerAns = playerAns;
+        }
+
         public override void FromBytes(byte[] bytes)
         {
             playerAns = (char)bytes[0];
@@ -304,6 +356,18 @@ namespace TriviaGameProtocol
         public char correctAnswer;
         private int numCards;
         private int whosTurn;
+
+        public AnswerAndResult()
+        {
+
+        }
+
+        public AnswerAndResult(char correctAnswer, int numCards, int whosTurn)
+        {
+            this.correctAnswer = correctAnswer;
+            this.numCards = numCards;
+            this.whosTurn = whosTurn;
+        }
 
         public override void FromBytes(byte[] bytes)
         {
@@ -345,6 +409,16 @@ namespace TriviaGameProtocol
     {
         public int whosTurn;
         public int curNumCards;   // curNumCards of other player
+
+        public NextPlayerTurn()
+        {
+
+        }
+        public NextPlayerTurn(int whosTurn, int curNumCards)
+        {
+            this.whosTurn = whosTurn;
+            this.curNumCards = curNumCards;
+        }
 
         public override void FromBytes(byte[] bytes)
         {
@@ -402,6 +476,15 @@ namespace TriviaGameProtocol
     public class Winner : MessageType
     {
         public string winner;
+        public Winner()
+        {
+
+        }
+
+        public Winner(string winner)
+        {
+            this.winner = winner;
+        }
 
         public override void FromBytes(byte[] bytes)
         {
@@ -465,6 +548,18 @@ namespace TriviaGameProtocol
         public string player1;
         public string player2;
 
+        public RoomEntry()
+        {
+
+        }
+
+        public RoomEntry(string roomID, string player1, string player2)
+        {
+            this.roomID = roomID;
+            this.player1 = player1;
+            this.player2 = player2;
+        }
+
         public override void FromBytes(byte[] bytes)
         {
             string bigString = Encoding.UTF8.GetString(bytes);
@@ -525,6 +620,16 @@ namespace TriviaGameProtocol
     public class Unregister : MessageType
     {
         public string name;
+
+        public Unregister()
+        {
+
+        }
+
+        public Unregister(string name)
+        {
+            this.name = name;
+        }
 
         public override void FromBytes(byte[] bytes)
         {
