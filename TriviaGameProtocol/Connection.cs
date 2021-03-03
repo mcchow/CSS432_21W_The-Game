@@ -11,7 +11,7 @@ namespace TriviaGameProtocol
         private Socket socket;
         private Protocol protocol;
         private bool runningRecieveLoop;
-        private bool shouldStayConnected;
+        private volatile bool shouldStayConnected;
         public Connection(Socket socket, Protocol protocol)
         {
             if (socket == null)
@@ -36,6 +36,11 @@ namespace TriviaGameProtocol
         public void Disconnect()
         {
             shouldStayConnected = false;
+            if (!socket.Connected)
+            {
+                return;
+            }
+            socket.Shutdown(SocketShutdown.Both);
             socket.Close(5);
         }
 

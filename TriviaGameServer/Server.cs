@@ -23,6 +23,7 @@ namespace TriviaGameServer
         private QuestionSource questionSource;
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
+        public volatile bool listening = false;
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
         // database connection here? is thread safe?
@@ -94,7 +95,7 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
-                connectionMap.TryAdd(c, new Player(registration, c));
+                connectionMap.TryUpdate(c, new Player(registration, c), null);
 
                 Console.WriteLine("Welcome " + registration.Name + "!");
                 c.Send(new AskForCard());
@@ -161,10 +162,21 @@ namespace TriviaGameServer
             });
         }
 
+        public void shutdown()
+        {
+            listening = false;
+            foreach (Connection c in connectionMap.Keys)
+            {
+                c.Disconnect();
+            }
+        }
+
         public void listen()
         {
+            Console.WriteLine("Server is Listening!");
+            listening = true;
             socket.Listen(MAX_CONCURRENT_CONNECTIONS);
-            while (true)
+            while (listening)
             {
                 socket.BeginAccept(OnConnect, null);
                 connectionPool.Wait();
@@ -181,9 +193,11 @@ namespace TriviaGameServer
             Console.WriteLine("Connection Opened!");
             Socket sd = socket.EndAccept(ar);
             Connection c = new Connection(sd, protocol);
+            connectionMap.TryAdd(c, null);
             try
             {
                 c.RecieveLoop();
+                Console.WriteLine("Exited RecieveLoop.");
             } catch (SocketException e)
             {
                 Console.WriteLine("Connection closed unexpectedly: " + e.Message);
