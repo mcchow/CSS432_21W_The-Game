@@ -169,6 +169,11 @@ namespace TriviaGameServer
         public void shutdown()
         {
             listening = false;
+            if (connectionMap.IsEmpty)
+            {
+                // Prevent listening thread from continuing to block if no connections are open.
+                connectionPool.Release();
+            }
             foreach (Connection c in connectionMap.Keys)
             {
                 c.Disconnect();
