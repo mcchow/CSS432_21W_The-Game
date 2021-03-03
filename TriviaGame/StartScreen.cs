@@ -48,6 +48,12 @@ namespace TriviaGameClient
         private List<Button> playerlist = new List<Button>();
         private int numplayer = 2;
 
+        ///
+        /// category picking
+        ///
+        private string[] CardCat = { "History", "Art", "Science", "Geography", "Sports", "Entertainment" };
+        private List<Button> CatButton = new List<Button>();
+
         /// <summary>
         /// gmae
         /// </summary>
@@ -61,6 +67,18 @@ namespace TriviaGameClient
         private const int timer = 20;
         private bool update = false;
         private int count = -1;
+
+        /// <summary>
+        /// waiting
+        /// </summary>
+        /// 
+        private Button waitingtext;
+
+        /// <summary>
+        /// result win/lose
+        /// </summary>
+        private Button winlosetext;
+        private string gameresult = "";
 
         private void setQuestion()
         {
@@ -97,7 +115,8 @@ namespace TriviaGameClient
         }
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
-            stage = "play";
+            stage = "cat";
+
         }
 
 
@@ -192,6 +211,27 @@ namespace TriviaGameClient
 
             //playButtons.Click += Createroom_Click;
 
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///category pick page
+            ///
+            int temp = 0;
+            foreach (string cat in CardCat)
+            {
+                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+                {
+                    Position = new Vector2(100, 10 + 60 * temp),
+                    Text = cat
+                };
+                void CatClick(object sender, System.EventArgs e)
+                {
+                    //do somthing with server
+                    stage = "play";
+                }
+                tempbutton.Click += CatClick;
+                CatButton.Add(tempbutton);
+                temp++;
+            }
+
             ////////////////////////////////////////////////////////////////////////////////////////////////////
             ///play screen
             ///
@@ -230,6 +270,26 @@ namespace TriviaGameClient
                 Position = new Vector2(50, 60),
                 Text = Question
             };
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///wait
+            ///
+
+            waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(50, 60),
+                Text = "Waiting for other player to answer the Question..."
+            };
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///result
+            ///
+
+            winlosetext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(50, 60),
+                Text = "You Win"
+            };
+
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -265,6 +325,13 @@ namespace TriviaGameClient
                     playButton.Draw(gameTime, spriteBatch);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     break;
+                case "cat":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    foreach (Button button in CatButton)
+                    {
+                        button.Draw(gameTime, spriteBatch);
+                    }
+                    break;
                 case "play":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     if (ans == -1)
@@ -293,10 +360,19 @@ namespace TriviaGameClient
                         else
                         {
                             ans = -1;
+                            //To Do go to waiting screen
+                            stage = "result";
+
                         }
                         
                     }
                     QuestionBox.Draw(gameTime, spriteBatch);
+                    break;
+                case "waiting":
+                    waitingtext.Draw(gameTime, spriteBatch);
+                case "result":
+                    lobbybackmeunButton.Draw(gameTime, spriteBatch);
+                    winlosetext.Draw(gameTime, spriteBatch);
                     break;
             }
             spriteBatch.End();
@@ -326,12 +402,21 @@ namespace TriviaGameClient
                     lobbybackmeunButton.Update(gameTime);
                     playButton.Update(gameTime);
                     break;
+                case "cat":
+                    foreach (Button button in CatButton)
+                    {
+                        button.Update(gameTime);
+                    }
+                    break;
                 case "play":
                     if(ans == -1)
                     for (int i = 0; i < 4; i++)
                     {
                         ansButtons[i].Update(gameTime);
                     }
+                    break;
+                case "result":
+                    lobbybackmeunButton.Update(gameTime);
                     break;
             }
         }
