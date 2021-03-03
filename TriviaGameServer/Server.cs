@@ -51,6 +51,7 @@ namespace TriviaGameServer
                 TriviaQuestion Q = question.question;
                 char corAns = question.answer;
 
+
                 AnswerAndResult AandR = new AnswerAndResult();
                 AandR.correctAnswer = corAns;
                 // hashmap connection to player (get curNumCards from Player and whosTurn from Room in Player when call 
@@ -108,7 +109,13 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
             {
-                //TODO What do we need to do here?
+                if (connectionMap.ContainsKey(c))
+                {
+                    Player player;
+                    connectionMap.TryGetValue(c, out player);
+                    connectionMap.TryUpdate(c, null, player);
+                }
+                c.Disconnect();
             });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
             {
