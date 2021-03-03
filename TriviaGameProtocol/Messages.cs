@@ -159,7 +159,12 @@ namespace TriviaGameProtocol
             int countBytesOpB = ASCIIEncoding.Unicode.GetByteCount(optionB);
             int countBytesOpC = ASCIIEncoding.Unicode.GetByteCount(optionC);
             int countBytesOpD = ASCIIEncoding.Unicode.GetByteCount(optionD);
-            int totalByteCount = countBytesQuestion + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD;
+            
+            string delim = "*";
+            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
+
+            int totalByteCount = countBytesQuestion + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD + (4 * countBytesDelim);
 
             byte[] triviaQues = new byte[totalByteCount];
 
@@ -170,23 +175,19 @@ namespace TriviaGameProtocol
             byte[] opDByte = Encoding.UTF8.GetBytes(optionD);
 
             quesByte.CopyTo(triviaQues, 0);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion);
 
-            string delim = "*";
-            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
-            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
-            delimBytes.CopyTo(triviaQues, countBytesQuestion + 1);
+            opAByte.CopyTo(triviaQues, countBytesQuestion + countBytesDelim);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + countBytesDelim + countBytesOpA);
 
-            opAByte.CopyTo(triviaQues, countBytesQuestion + countBytesDelim + 1);
-            delimBytes.CopyTo(triviaQues, countBytesQuestion + countBytesDelim + countBytesOpA + 1);
+            opBByte.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA + countBytesOpB);
 
-            opBByte.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA + 1);
-            delimBytes.CopyTo(triviaQues, countBytesQuestion + (2 * countBytesDelim) + countBytesOpA + countBytesOpB + 1);
+            opCByte.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC);
 
-            opCByte.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB + 1);
-            delimBytes.CopyTo(triviaQues, countBytesQuestion + (3 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + 1);
-
-            opDByte.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + 1);
-            delimBytes.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD + 1);
+            opDByte.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC);
+            delimBytes.CopyTo(triviaQues, countBytesQuestion + (4 * countBytesDelim) + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD);
 
             return triviaQues;
         }
