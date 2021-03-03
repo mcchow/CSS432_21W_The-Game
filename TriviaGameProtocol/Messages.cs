@@ -19,6 +19,18 @@ namespace TriviaGameProtocol
         {
             return new byte[0];
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is AskForCard))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 
     public class ChosenCard : MessageType
@@ -39,6 +51,18 @@ namespace TriviaGameProtocol
         {
             return Encoding.UTF8.GetBytes(Card);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is ChosenCard))
+            {
+                return false;
+            }
+
+            ChosenCard cc = (ChosenCard)obj;
+
+            return Card.Equals(cc.Card);
+        }
     }
 
     public class Register : MessageType
@@ -57,6 +81,18 @@ namespace TriviaGameProtocol
         public override byte[] ToBytes()
         {
             return Encoding.UTF8.GetBytes(Name);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Register))
+            {
+                return false;
+            }
+
+            Register r = (Register)obj;
+
+            return Name.Equals(r.Name);
         }
     }
 
@@ -78,6 +114,18 @@ namespace TriviaGameProtocol
         {
             return Encoding.UTF8.GetBytes(RoomID);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is JoinRoom))
+            {
+                return false;
+            }
+
+            JoinRoom jr = (JoinRoom)obj;
+
+            return RoomID.Equals(jr.RoomID);
+        }
     }
 
     public class LeaveRoom : MessageType
@@ -95,6 +143,18 @@ namespace TriviaGameProtocol
         {
             return new byte[0];
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is LeaveRoom))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
     public class OpponentQuit : MessageType
     {
@@ -111,6 +171,18 @@ namespace TriviaGameProtocol
         {
             return new byte[0];
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is OpponentQuit))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 
     // mariana: TriviaQuestion, PlayerAnswer, and AnswerAndResult
@@ -125,7 +197,7 @@ namespace TriviaGameProtocol
         public override void FromBytes(byte[] bytes)
         {
             string bigString = Encoding.UTF8.GetString(bytes);
-            string[] splitString = bigString.Split("*");
+            string[] splitString = bigString.Split("\0");
             question = splitString[0];
             optionA = splitString[1];
             optionB = splitString[2];
@@ -160,7 +232,7 @@ namespace TriviaGameProtocol
             int countBytesOpC = ASCIIEncoding.Unicode.GetByteCount(optionC);
             int countBytesOpD = ASCIIEncoding.Unicode.GetByteCount(optionD);
             
-            string delim = "*";
+            string delim = "\0";
             int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
             byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
 
@@ -213,6 +285,18 @@ namespace TriviaGameProtocol
             pAns[0] = (byte)playerAns;
             return pAns;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is PlayerAnswer))
+            {
+                return false;
+            }
+
+            PlayerAnswer pa = (PlayerAnswer)obj;
+
+            return playerAns.Equals(pa.playerAns);
+        }
     }
 
     public class AnswerAndResult : MessageType     
@@ -242,6 +326,18 @@ namespace TriviaGameProtocol
             byte[] bArrWhosTurn = BitConverter.GetBytes(whosTurn);
             bArrWhosTurn.CopyTo(AnsAndRes, 5);
             return AnsAndRes;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is AnswerAndResult))
+            {
+                return false;
+            }
+
+            AnswerAndResult aar = (AnswerAndResult)obj;
+
+            return correctAnswer.Equals(aar.correctAnswer) && numCards.Equals(aar.numCards) && whosTurn.Equals(aar.whosTurn);
         }
     }
 
@@ -289,6 +385,18 @@ namespace TriviaGameProtocol
 
             return nextPlayerTurn;
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is NextPlayerTurn))
+            {
+                return false;
+            }
+
+            NextPlayerTurn npt = (NextPlayerTurn)obj;
+
+            return whosTurn.Equals(npt.whosTurn) && curNumCards.Equals(npt.curNumCards);
+        }
     }
 
     public class Winner : MessageType
@@ -309,6 +417,18 @@ namespace TriviaGameProtocol
         {
             return Encoding.UTF8.GetBytes(winner);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Winner))
+            {
+                return false;
+            }
+
+            Winner w = (Winner)obj;
+
+            return winner.Equals(w.winner);
+        }
     }
 
     public class ListRoomsRequest : MessageType
@@ -325,6 +445,18 @@ namespace TriviaGameProtocol
         {
             return new byte[0];
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is ListRoomsRequest))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
     }
 
     public class RoomEntry : MessageType
@@ -336,7 +468,7 @@ namespace TriviaGameProtocol
         public override void FromBytes(byte[] bytes)
         {
             string bigString = Encoding.UTF8.GetString(bytes);
-            string[] splitString = bigString.Split("*");
+            string[] splitString = bigString.Split("\0");
             roomID = splitString[0];
             player1 = splitString[1];
             player2 = splitString[2];
@@ -352,7 +484,12 @@ namespace TriviaGameProtocol
             int countBytesRoomID = ASCIIEncoding.Unicode.GetByteCount(roomID);
             int countBytesP1 = ASCIIEncoding.Unicode.GetByteCount(player1);
             int countBytesP2 = ASCIIEncoding.Unicode.GetByteCount(player2);
-            int totalByteCount = countBytesRoomID + countBytesP1 + countBytesP2;
+
+            string delim = "\0";
+            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
+
+            int totalByteCount = countBytesRoomID + countBytesP1 + countBytesP2 + (2 * countBytesDelim);
 
             byte[] roomEntry = new byte[totalByteCount];
 
@@ -361,19 +498,27 @@ namespace TriviaGameProtocol
             byte[] player2Byte = Encoding.UTF8.GetBytes(player2);
 
             roomIDByte.CopyTo(roomEntry, 0);
+            delimBytes.CopyTo(roomEntry, countBytesRoomID);
 
-            string delim = "*";
-            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
-            byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
-            delimBytes.CopyTo(roomEntry, countBytesRoomID + 1);
+            player1Byte.CopyTo(roomEntry, countBytesRoomID + countBytesDelim);
 
-            player1Byte.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + 1);
+            delimBytes.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + countBytesP1);
 
-            delimBytes.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + countBytesP1 + 1);
-
-            player2Byte.CopyTo(roomEntry, totalByteCount + (2 * countBytesDelim) + 1);
+            player2Byte.CopyTo(roomEntry, countBytesRoomID + countBytesP1 + (2 * countBytesDelim));
 
             return roomEntry;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is RoomEntry))
+            {
+                return false;
+            }
+
+            RoomEntry re = (RoomEntry)obj;
+
+            return roomID.Equals(re.roomID) && player1.Equals(re.player1) && player2.Equals(re.player2);
         }
     }
 
@@ -395,6 +540,18 @@ namespace TriviaGameProtocol
         {
             return Encoding.UTF8.GetBytes(name);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is Unregister))
+            {
+                return false;
+            }
+
+            Unregister unReg = (Unregister)obj;
+
+            return name.Equals(unReg.name);
+        }
     }
 
     public class ClientDisconnect : MessageType
@@ -410,6 +567,18 @@ namespace TriviaGameProtocol
         public override byte[] ToBytes()
         {
             return new byte[0];
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is ClientDisconnect))
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
         }
     }
 

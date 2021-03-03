@@ -54,8 +54,6 @@ namespace TriviaGameClient
         private string[] CardCat = { "History", "Art", "Science", "Geography", "Sports", "Entertainment" };
         private List<Button> CatButton = new List<Button>();
 
-
-
         /// <summary>
         /// gmae
         /// </summary>
@@ -118,6 +116,7 @@ namespace TriviaGameClient
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
             stage = "cat";
+
         }
 
 
@@ -207,6 +206,7 @@ namespace TriviaGameClient
                 Position = new Vector2(350, 400),
                 Text = "Play"
             };
+
             playButton.Click += gotoplay_Click;
 
             //playButtons.Click += Createroom_Click;
@@ -289,6 +289,7 @@ namespace TriviaGameClient
                 Position = new Vector2(50, 60),
                 Text = "You Win"
             };
+
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -361,6 +362,7 @@ namespace TriviaGameClient
                             ans = -1;
                             //To Do go to waiting screen
                             stage = "result";
+
                         }
                         
                     }
