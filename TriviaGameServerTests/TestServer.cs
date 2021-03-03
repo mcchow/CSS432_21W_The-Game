@@ -93,33 +93,28 @@ namespace TriviaGameServerTests
         }
     }
 
-    public class ServerIntegrationTests : IDisposable
+    public class ClientServerSeq : IDisposable
     {
-        MockServer server;
-        MockClient client;
-        public ServerIntegrationTests()
+        public MockServer server;
+        public MockClient client;
+        public List<SeqEvent> sequence;
+        private HashSet<String> messageTypes;
+        private List<MessageType> recieved;
+
+        public struct SeqEvent
+        {
+            public bool Expectation;
+            public MessageType Message;
+        }
+
+        public ClientServerSeq()
         {
             // Retrieves expected question category
             server = new MockServer();
             client = new MockClient();
-        }
-
-        [Fact]
-        public void TestChosenCard()
-        {
-            ChosenCard msg = new ChosenCard();
-            msg.Card = "CategoryName";
-            client.connection.Send(msg);
-            TriviaQuestion expected = server.questions.questions[0].question;
-            bool triviaQuestionRecieved = false;
-            client.protocol.RegisterMessageHandler<TriviaQuestion>((TriviaQuestion res, Connection c) =>
-            {
-                Assert.Equal(expected, res);
-                triviaQuestionRecieved = true;
-            });
-            client.protocol.HandleMessages();
-            Assert.Equal(1, server.questions.questionIndex);
-            Assert.True(triviaQuestionRecieved);
+            sequence = new List<SeqEvent>();
+            messageTypes = new HashSet<string>();
+            recieved = new List<MessageType>();
         }
 
         public void Dispose()
@@ -127,54 +122,153 @@ namespace TriviaGameServerTests
             server.Stop();
             client.Stop();
         }
+
+        public ClientServerSeq expect<T>(T message) where T : MessageType, new()
+        {
+            if (!messageTypes.Contains(message.MessageID())) {
+                client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
+                {
+                    recieved.Add(m);
+                });
+            }
+            SeqEvent e = new SeqEvent();
+            e.Expectation = true;
+            e.Message = message;
+            sequence.Add(e);
+            return this;
+        }
+
+        public ClientServerSeq send(MessageType message)
+        {
+
+            SeqEvent e = new SeqEvent();
+            e.Expectation = false;
+            e.Message = message;
+            sequence.Add(e);
+            return this;
+        }
+
+        public ClientServerSeq test()
+        {
+            foreach (SeqEvent e in sequence) {
+                if (!e.Expectation)
+                {
+                    Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
+                    client.connection.Send(e.Message);
+                } else
+                {
+                    client.protocol.HandleMessages();
+                    Assert.True(recieved.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
+                    Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                    recieved.RemoveAt(0);
+                }
+            }
+            Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
+            return this;
+        }
+
     }
 
-    public class TestPlayerAnswer
+
+    public class ServerIntegrationTests : IDisposable
     {
+        ClientServerSeq seq;
+        public ServerIntegrationTests()
+        {
+            seq = new ClientServerSeq();
+        }
+
+        public void Dispose()
+        {
+            seq.Dispose();
+        }
+
+        [Fact]
+        public void TestChosenCard()
+        {
+            ChosenCard msg = new ChosenCard();
+            msg.Card = "CategoryName";
+            TriviaQuestion expected = seq.server.questions.questions[0].question;
+
+            seq.send(msg).expect(expected).test();
+
+        }
+
+        // PlayerAnswer:
         // does nothing if player is not in a room
         // does nothing if it is not player's turn
         // responds with AnswerAndResult if winner not yet chosen
         // sends AnswerAndResult to opponent if winner not yet chosen
         // responds with Winner if player wins
         // sends Winner to opponent if player wins
-    }
 
-    public class TestRegister
-    {
-        // Ignores duplicate Register messages from same connection
-        // Adds player to the connection map (api calls that require
-        // the player to be in the connection map should work now)
-    }
+        [Fact]
+        public void TestPlayerAnswer_RespondsWithAnswerAndResultIfNoWinner()
+        {
 
-    public class TestUnregister
-    {
-        // Removes player from connection map (api calls that require
-        // the player to be in the connection map should be ignored)
-    }
+        }
 
-    public class TestClientDisconnect
-    {
-        // Closes connection
-    }
+        [Fact]
+        public void TestPlayerAnswer_RespondsWithWinnerIfWon()
+        {
 
-    public class TestJoinRoom
-    {
-        // Ignored if player not in connection map
-        // Ignored if player already in room
-        // Sends RoomFull message if room is full
-        // Sends AskForCard message to one player, NextPlayerTurn message to other player
-    }
+        }
 
-    public class TestLeaveRoom
-    {
-        // Ignored if player not in connection map
-        // Ignored if player not in a room
-        // JoinRoom will no longer be ignored
-    }
+        [Fact]
+        public void TestPlayerAnswer_SendsAnswerAndResultToOtherPlayerIfNoWinner()
+        {
 
-    public class TestListRoomsRequest
-    {
-        // Responds with sequence of RoomEntry messages
+        }
+
+        [Fact]
+        public void TestPlayerAnswer_SendsWinnerToOtherPlayerIfWon()
+        {
+
+        }
+
+        [Fact]
+        public void TestRegister()
+        {
+            // Ignores duplicate Register messages from same connection
+            // Adds player to the connection map (api calls that require
+            // the player to be in the connection map should work now)
+        }
+
+        [Fact]
+        public void TestUnregister()
+        {
+            // Removes player from connection map (api calls that require
+            // the player to be in the connection map should be ignored)
+        }
+
+        [Fact]
+        public void TestClientDisconnect()
+        {
+            // Closes connection
+        }
+
+        [Fact]
+        public void TestJoinRoom()
+        {
+            // Ignored if player not in connection map
+            // Ignored if player already in room
+            // Sends RoomFull message if room is full
+            // Sends AskForCard message to one player, NextPlayerTurn message to other player
+        }
+
+        [Fact]
+        public void TestLeaveRoom()
+        {
+            // Ignored if player not in connection map
+            // Ignored if player not in a room
+            // JoinRoom will no longer be ignored
+        }
+
+        [Fact]
+        public void TestListRoomsRequest()
+        {
+            // Responds with sequence of RoomEntry messages
+        }
     }
 
 }

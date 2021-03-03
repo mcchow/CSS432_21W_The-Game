@@ -133,6 +133,20 @@ namespace TriviaGameProtocol
             optionD = splitString[4];
         }
 
+        public override bool Equals(object obj)
+        {
+            if (obj == null || !(obj is TriviaQuestion))
+            {
+                return false;
+            }
+            TriviaQuestion tq = (TriviaQuestion)obj;
+            return question.Equals(tq.question) &&
+                optionA.Equals(tq.optionA) &&
+                optionB.Equals(tq.optionB) &&
+                optionC.Equals(tq.optionC) &&
+                optionD.Equals(tq.optionD);
+        }
+
         public override string MessageID()
         {
             return "TriviaQuestion";
