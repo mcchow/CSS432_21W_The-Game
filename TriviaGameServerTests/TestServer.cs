@@ -97,12 +97,21 @@ namespace TriviaGameServerTests
     {
         public MockServer server;
         public MockClient client;
+        public MockClient client2;
         public List<SeqEvent> sequence;
         private HashSet<String> messageTypes;
-        private List<MessageType> recieved;
+        private List<MessageTypeWrapper> recieved;
+        private List<MessageTypeWrapper> recieved2;
+
+        public struct MessageTypeWrapper
+        {
+            public bool PlayerOne;
+            public MessageType Message;
+        }
 
         public struct SeqEvent
         {
+            public bool PlayerOne;
             public bool Expectation;
             public MessageType Message;
         }
@@ -112,15 +121,18 @@ namespace TriviaGameServerTests
             // Retrieves expected question category
             server = new MockServer();
             client = new MockClient();
+            client2 = new MockClient();
             sequence = new List<SeqEvent>();
             messageTypes = new HashSet<string>();
-            recieved = new List<MessageType>();
+            recieved = new List<MessageTypeWrapper>();
+            recieved2 = new List<MessageTypeWrapper>();
         }
 
         public void Dispose()
         {
             server.Stop();
             client.Stop();
+            client2.Stop();
         }
 
         public ClientServerSeq expect<T>(T message) where T : MessageType, new()
@@ -128,10 +140,34 @@ namespace TriviaGameServerTests
             if (!messageTypes.Contains(message.MessageID())) {
                 client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
                 {
-                    recieved.Add(m);
+                    MessageTypeWrapper mtw = new MessageTypeWrapper();
+                    mtw.PlayerOne = true;
+                    mtw.Message = m;
+                    recieved.Add(mtw);
                 });
             }
             SeqEvent e = new SeqEvent();
+            e.PlayerOne = true;
+            e.Expectation = true;
+            e.Message = message;
+            sequence.Add(e);
+            return this;
+        }
+
+        public ClientServerSeq expect2<T>(T message) where T : MessageType, new()
+        {
+            if (!messageTypes.Contains(message.MessageID()))
+            {
+                client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
+                {
+                    MessageTypeWrapper mtw = new MessageTypeWrapper();
+                    mtw.PlayerOne = false;
+                    mtw.Message = m;
+                    recieved2.Add(mtw);
+                });
+            }
+            SeqEvent e = new SeqEvent();
+            e.PlayerOne = false;
             e.Expectation = true;
             e.Message = message;
             sequence.Add(e);
@@ -140,8 +176,18 @@ namespace TriviaGameServerTests
 
         public ClientServerSeq send(MessageType message)
         {
-
             SeqEvent e = new SeqEvent();
+            e.PlayerOne = true;
+            e.Expectation = false;
+            e.Message = message;
+            sequence.Add(e);
+            return this;
+        }
+
+        public ClientServerSeq send2(MessageType message)
+        {
+            SeqEvent e = new SeqEvent();
+            e.PlayerOne = false;
             e.Expectation = false;
             e.Message = message;
             sequence.Add(e);
@@ -154,16 +200,33 @@ namespace TriviaGameServerTests
                 if (!e.Expectation)
                 {
                     Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
-                    client.connection.Send(e.Message);
+                    Assert.True(recieved2.Count == 0, "Recieved an unexpected message.");
+                    if (e.PlayerOne)
+                    {
+                        client.connection.Send(e.Message);
+                    } else
+                    {
+                        client2.connection.Send(e.Message);
+                    }
                 } else
                 {
+                    System.Threading.Thread.Sleep(10);
                     client.protocol.HandleMessages();
-                    Assert.True(recieved.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
-                    Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
-                    recieved.RemoveAt(0);
+                    client2.protocol.HandleMessages();
+                    if (e.PlayerOne)
+                    {
+                        Assert.True(recieved.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
+                        Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        recieved.RemoveAt(0);
+                    } else {
+                        Assert.True(recieved2.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
+                        Assert.True(recieved2[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        recieved2.RemoveAt(0);
+                    }
                 }
             }
             Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
+            Assert.True(recieved2.Count == 0, "Recieved an unexpected message.");
             return this;
         }
 
