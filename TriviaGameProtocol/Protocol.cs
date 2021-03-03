@@ -98,12 +98,16 @@ namespace TriviaGameProtocol
         }
     }
 
+#pragma warning disable CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     public abstract class MessageType
+#pragma warning restore CS0659 // Type overrides Object.Equals(object o) but does not override Object.GetHashCode()
     {
         public abstract string MessageID();
 
         public abstract void FromBytes(byte[] bytes);
 
         public abstract byte[] ToBytes();
+
+        public abstract override bool Equals(object obj);
     }
 }
