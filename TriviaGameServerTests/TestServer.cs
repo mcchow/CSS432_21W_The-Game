@@ -100,20 +100,16 @@ namespace TriviaGameServerTests
         public MockClient client2;
         public List<SeqEvent> sequence;
         private HashSet<String> messageTypes;
-        private List<MessageTypeWrapper> recieved;
-        private List<MessageTypeWrapper> recieved2;
-
-        public struct MessageTypeWrapper
-        {
-            public bool PlayerOne;
-            public MessageType Message;
-        }
+        private List<MessageType> recieved;
+        private List<MessageType> recieved2;
 
         public struct SeqEvent
         {
+            public bool ClearRecieved;
             public bool PlayerOne;
             public bool Expectation;
             public MessageType Message;
+            public string MessageID;
         }
 
         public ClientServerSeq()
@@ -124,8 +120,8 @@ namespace TriviaGameServerTests
             client2 = new MockClient();
             sequence = new List<SeqEvent>();
             messageTypes = new HashSet<string>();
-            recieved = new List<MessageTypeWrapper>();
-            recieved2 = new List<MessageTypeWrapper>();
+            recieved = new List<MessageType>();
+            recieved2 = new List<MessageType>();
         }
 
         public void Dispose()
@@ -137,39 +133,37 @@ namespace TriviaGameServerTests
 
         public ClientServerSeq expect<T>(T message) where T : MessageType, new()
         {
-            if (!messageTypes.Contains(message.MessageID())) {
+            MessageType mtype = new T();
+            if (!messageTypes.Contains(mtype.MessageID())) {
                 client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
                 {
-                    MessageTypeWrapper mtw = new MessageTypeWrapper();
-                    mtw.PlayerOne = true;
-                    mtw.Message = m;
-                    recieved.Add(mtw);
+                    recieved.Add(m);
                 });
             }
             SeqEvent e = new SeqEvent();
             e.PlayerOne = true;
             e.Expectation = true;
             e.Message = message;
+            e.MessageID = mtype.MessageID();
             sequence.Add(e);
             return this;
         }
 
         public ClientServerSeq expect2<T>(T message) where T : MessageType, new()
         {
-            if (!messageTypes.Contains(message.MessageID()))
+            MessageType mtype = new T();
+            if (!messageTypes.Contains(mtype.MessageID()))
             {
                 client.protocol.RegisterMessageHandler<T>((T m, Connection c) =>
                 {
-                    MessageTypeWrapper mtw = new MessageTypeWrapper();
-                    mtw.PlayerOne = false;
-                    mtw.Message = m;
-                    recieved2.Add(mtw);
+                    recieved2.Add(m);
                 });
             }
             SeqEvent e = new SeqEvent();
             e.PlayerOne = false;
             e.Expectation = true;
             e.Message = message;
+            e.MessageID = mtype.MessageID();
             sequence.Add(e);
             return this;
         }
@@ -194,9 +188,23 @@ namespace TriviaGameServerTests
             return this;
         }
 
+        public ClientServerSeq clearRecieved()
+        {
+            SeqEvent e = new SeqEvent();
+            e.ClearRecieved = true;
+            sequence.Add(e);
+            return this;
+        }
+
         public ClientServerSeq test()
         {
             foreach (SeqEvent e in sequence) {
+                if (e.ClearRecieved)
+                {
+                    recieved.Clear();
+                    recieved2.Clear();
+                    continue;
+                }
                 if (!e.Expectation)
                 {
                     Assert.True(recieved.Count == 0, "Recieved an unexpected message.");
@@ -210,17 +218,25 @@ namespace TriviaGameServerTests
                     }
                 } else
                 {
-                    System.Threading.Thread.Sleep(10);
+                    System.Threading.Thread.Sleep(1);
                     client.protocol.HandleMessages();
                     client2.protocol.HandleMessages();
                     if (e.PlayerOne)
                     {
-                        Assert.True(recieved.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
-                        Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        Assert.True(recieved.Count > 0, "Expected to recieve a " + e.MessageID + " message.");
+                        Assert.True(recieved[0].MessageID().Equals(e.MessageID), "Expected to recieve a " + e.MessageID + " message.");
+                        if (e.Message != null)
+                        {
+                            Assert.True(recieved[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        }
                         recieved.RemoveAt(0);
                     } else {
-                        Assert.True(recieved2.Count > 0, "Expected to recieve a " + e.Message.MessageID() + " message.");
-                        Assert.True(recieved2[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        Assert.True(recieved2.Count > 0, "Expected to recieve a " + e.MessageID + " message.");
+                        Assert.True(recieved2[0].MessageID().Equals(e.MessageID), "Expected to recieve a " + e.MessageID + " message.");
+                        if (e.Message != null)
+                        {
+                            Assert.True(recieved2[0].Equals(e.Message), "Recieved message of expected type, but message contents were unexpected.");
+                        }
                         recieved2.RemoveAt(0);
                     }
                 }
@@ -268,25 +284,53 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestPlayerAnswer_RespondsWithAnswerAndResultIfNoWinner()
         {
-
+            Register register = new Register();
+            register.Name = "PlayerName!";
+            Register register2 = new Register();
+            register.Name = "Player2Name!";
+            ListRoomsRequest listRoomsRequest = new ListRoomsRequest();
+            JoinRoom joinRoom = new JoinRoom();
+            AnswerAndResult answerAndResult = new AnswerAndResult();
+            answerAndResult.correctAnswer = 'C';
+            seq.client.protocol.RegisterMessageHandler<RoomEntry>((RoomEntry roomEntry, Connection c) =>
+            {
+                joinRoom.RoomID = roomEntry.roomID;
+            });
+            ChosenCard choseCard = new ChosenCard();
+            choseCard.Card = "Category"; //TODO use correct card category here!
+            seq.send(register)
+                .send(listRoomsRequest)
+                .expect<RoomEntry>(null) // We should get at least one RoomEntry message, but might get more, so
+                .clearRecieved() // we clear the recieved message queue to prevent test failure from unexpected messages.
+                .send(joinRoom)
+                .send2(register2)
+                .send2(joinRoom)
+                .expect<AskForCard>(new AskForCard())
+                .send(choseCard)
+                .expect<AnswerAndResult>(answerAndResult)
+                .expect2<AnswerAndResult>(answerAndResult)
+                .test();
         }
 
         [Fact]
         public void TestPlayerAnswer_RespondsWithWinnerIfWon()
         {
 
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
         public void TestPlayerAnswer_SendsAnswerAndResultToOtherPlayerIfNoWinner()
         {
 
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
         public void TestPlayerAnswer_SendsWinnerToOtherPlayerIfWon()
         {
 
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
@@ -295,6 +339,7 @@ namespace TriviaGameServerTests
             // Ignores duplicate Register messages from same connection
             // Adds player to the connection map (api calls that require
             // the player to be in the connection map should work now)
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
@@ -302,12 +347,14 @@ namespace TriviaGameServerTests
         {
             // Removes player from connection map (api calls that require
             // the player to be in the connection map should be ignored)
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
         public void TestClientDisconnect()
         {
             // Closes connection
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
@@ -317,6 +364,7 @@ namespace TriviaGameServerTests
             // Ignored if player already in room
             // Sends RoomFull message if room is full
             // Sends AskForCard message to one player, NextPlayerTurn message to other player
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
@@ -325,12 +373,16 @@ namespace TriviaGameServerTests
             // Ignored if player not in connection map
             // Ignored if player not in a room
             // JoinRoom will no longer be ignored
+            Assert.True(false, "Test not implemented");
         }
 
         [Fact]
         public void TestListRoomsRequest()
         {
-            // Responds with sequence of RoomEntry messages
+            seq.send(new ListRoomsRequest())
+                .expect<RoomEntry>(null)
+                .clearRecieved()
+                .test();
         }
     }
 

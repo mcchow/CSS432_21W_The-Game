@@ -372,7 +372,7 @@ namespace TriviaGameProtocol
 
             delimBytes.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + countBytesP1);
 
-            player2Byte.CopyTo(roomEntry, totalByteCount + (2 * countBytesDelim));
+            player2Byte.CopyTo(roomEntry, countBytesRoomID + countBytesP1 + (2 * countBytesDelim));
 
             return roomEntry;
         }
