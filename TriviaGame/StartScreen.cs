@@ -12,6 +12,7 @@ namespace TriviaGameClient
     class StartScreen : Component
     {
         private string stage = "startScreen";
+        //make const value on time in game
         /// <summary>
         /// Start page content
         /// </summary>
@@ -47,6 +48,45 @@ namespace TriviaGameClient
         private List<Button> playerlist = new List<Button>();
         private int numplayer = 2;
 
+        ///
+        /// category picking
+        ///
+        private string[] CardCat = { "History", "Art", "Science", "Geography", "Sports", "Entertainment" };
+        private List<Button> CatButton = new List<Button>();
+
+
+
+        /// <summary>
+        /// gmae
+        /// </summary>
+        private List<Button> ansButtons = new List<Button>();
+        private List<Button> ansButtonsr = new List<Button>(); //red background
+        private List<Button> ansButtonsg = new List<Button>(); // green background
+        private string Question = "Question";
+        private Button QuestionBox;
+        private int ans = -1;
+        private int CorrectAns = 1;
+        private const int timer = 20;
+        private bool update = false;
+        private int count = -1;
+
+        /// <summary>
+        /// waiting
+        /// </summary>
+        /// 
+        private Button waitingtext;
+
+        /// <summary>
+        /// result win/lose
+        /// </summary>
+        private Button winlosetext;
+        private string gameresult = "";
+
+        private void setQuestion()
+        {
+            QuestionBox.Text = Question;
+        }
+
         private void StartButton_Click(object sender, System.EventArgs e)
         {
             Next?.Invoke(this, textField.Text);
@@ -75,6 +115,12 @@ namespace TriviaGameClient
         {
             stage = "room";
         }
+        private void gotoplay_Click(object sender, System.EventArgs e)
+        {
+            stage = "cat";
+        }
+
+
 
         public StartScreen(ContentManager content)
         {
@@ -101,7 +147,7 @@ namespace TriviaGameClient
                 Text = "Create Lobby"
             };
             CreatelobbyButton.Click += Createroom_Click;
-            
+
             JoinlobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(350, 300),
@@ -161,8 +207,88 @@ namespace TriviaGameClient
                 Position = new Vector2(350, 400),
                 Text = "Play"
             };
+            playButton.Click += gotoplay_Click;
+
             //playButtons.Click += Createroom_Click;
 
+            //////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///category pick page
+            ///
+            int temp = 0;
+            foreach (string cat in CardCat)
+            {
+                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+                {
+                    Position = new Vector2(100, 10 + 60 * temp),
+                    Text = cat
+                };
+                void CatClick(object sender, System.EventArgs e)
+                {
+                    //do somthing with server
+                    stage = "play";
+                }
+                tempbutton.Click += CatClick;
+                CatButton.Add(tempbutton);
+                temp++;
+            }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///play screen
+            ///
+
+            for (int i = 0; i < 4; i++)
+            {
+                String name = String.Format("player {0}", i);
+                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+                {
+                    Position = new Vector2(100, 100 + 70 * i),
+                    Text = name
+                };
+                void AnsClick(object sender, System.EventArgs e)
+                {
+                    ans = i;
+                    count = 100;
+                }
+                tempbutton.Click += AnsClick;
+                ansButtons.Add(tempbutton);
+                tempbutton = new Button(content.Load<Texture2D>("Buttong"), content.Load<SpriteFont>("normal"))
+                {
+                    Position = new Vector2(100, 100 + 70 * i),
+                    Text = name
+                };
+                ansButtonsg.Add(tempbutton);
+                tempbutton = new Button(content.Load<Texture2D>("Buttonr"), content.Load<SpriteFont>("normal"))
+                {
+                    Position = new Vector2(100, 100 + 70 * i),
+                    Text = name
+                };
+                ansButtonsr.Add(tempbutton);
+            }
+
+            QuestionBox = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(50, 60),
+                Text = Question
+            };
+
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///wait
+            ///
+
+            waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(50, 60),
+                Text = "Waiting for other player to answer the Question..."
+            };
+            //////////////////////////////////////////////////////////////////////////////////////////////////////////
+            ///result
+            ///
+
+            winlosetext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(50, 60),
+                Text = "You Win"
+            };
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -198,6 +324,54 @@ namespace TriviaGameClient
                     playButton.Draw(gameTime, spriteBatch);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     break;
+                case "cat":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    foreach (Button button in CatButton)
+                    {
+                        button.Draw(gameTime, spriteBatch);
+                    }
+                    break;
+                case "play":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    if (ans == -1)
+                        for (int i = 0; i < 4; i++)
+                        {
+                            ansButtons[i].Draw(gameTime, spriteBatch);
+                        }
+                    else
+                    {
+                        for (int i = 0; i < 4; i++)
+                        {
+                            if (CorrectAns == i)
+                            {
+                                ansButtonsg[i].Draw(gameTime, spriteBatch);
+                            }
+                            else
+                            {
+                                ansButtonsr[i].Draw(gameTime, spriteBatch);
+                            }
+                            
+                        }
+                        if (count > 0)
+                        {
+                            count--;
+                        }
+                        else
+                        {
+                            ans = -1;
+                            //To Do go to waiting screen
+                            stage = "result";
+                        }
+                        
+                    }
+                    QuestionBox.Draw(gameTime, spriteBatch);
+                    break;
+                case "waiting":
+                    waitingtext.Draw(gameTime, spriteBatch);
+                case "result":
+                    lobbybackmeunButton.Draw(gameTime, spriteBatch);
+                    winlosetext.Draw(gameTime, spriteBatch);
+                    break;
             }
             spriteBatch.End();
             
@@ -225,6 +399,22 @@ namespace TriviaGameClient
                 case "room":
                     lobbybackmeunButton.Update(gameTime);
                     playButton.Update(gameTime);
+                    break;
+                case "cat":
+                    foreach (Button button in CatButton)
+                    {
+                        button.Update(gameTime);
+                    }
+                    break;
+                case "play":
+                    if(ans == -1)
+                    for (int i = 0; i < 4; i++)
+                    {
+                        ansButtons[i].Update(gameTime);
+                    }
+                    break;
+                case "result":
+                    lobbybackmeunButton.Update(gameTime);
                     break;
             }
         }
