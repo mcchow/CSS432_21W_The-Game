@@ -71,7 +71,7 @@ namespace TriviaGameClient
         {
             // TODO: use this.Content to load your game content here
             _spriteBatch = new SpriteBatch(GraphicsDevice);
-            startScreen = new StartScreen(Content);
+            startScreen = new StartScreen(Content, connection, protocol);
             startScreen.Next += StartScreen_Next;
         }
 
@@ -87,10 +87,10 @@ namespace TriviaGameClient
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
-            
-            protocol.HandleMessages();
 
             startScreen.Update(gameTime);
+            
+            protocol.HandleMessages();
 
             base.Update(gameTime);
         }
