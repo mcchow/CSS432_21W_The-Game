@@ -12,6 +12,12 @@ namespace ProtocolTests
         {
             public byte[] from = null;
             public byte[] to = null;
+
+            public override bool Equals(object obj)
+            {
+                throw new NotImplementedException();
+            }
+
             public override void FromBytes(byte[] bytes)
             {
                 from = bytes;
@@ -32,6 +38,12 @@ namespace ProtocolTests
         {
             public byte[] from = null;
             public byte[] to = null;
+
+            public override bool Equals(object obj)
+            {
+                throw new NotImplementedException();
+            }
+
             public override void FromBytes(byte[] bytes)
             {
                 from = bytes;

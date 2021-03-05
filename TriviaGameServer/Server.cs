@@ -26,6 +26,7 @@ namespace TriviaGameServer
         public volatile bool listening = false;
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
+        private ConcurrentDictionary<string, Room> rooms;
         // database connection here? is thread safe?
 
         public Server(QuestionSource qsrc)
@@ -38,6 +39,7 @@ namespace TriviaGameServer
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
             connectionMap = new ConcurrentDictionary<Connection, Player>();
+            rooms = new ConcurrentDictionary<string, Room>();
         }
 
         private void SetupProtocol()
@@ -64,10 +66,13 @@ namespace TriviaGameServer
                 connectionMap.TryGetValue(c, out player);
                 Room room = player.Room;
 
-                if (room == null || room.playerList[room.whosTurn] != player)
+                RoomPlayer roomPlayer = room.playerOne == player ? RoomPlayer.PlayerOne : RoomPlayer.PlayerTwo;
+
+                if (room == null || room.WhosTurn != roomPlayer)
                 {
                     return;
                 }
+
                 //TODO perhaps game rule logic should be moved into Room?
                 if (msg.playerAns == room.answer)
                 {
@@ -76,19 +81,17 @@ namespace TriviaGameServer
                     {
                         Winner winner = new Winner();
                         winner.winner = player.Name;
-                        foreach (Player p in room.playerList)
-                        {
-                            p.Connection.Send(winner);
-                            return;
-                        }
+                        room.playerOne.Connection.Send(winner);
+                        room.playerTwo.Connection.Send(winner);
+                        return;
                     }
                 }
                 AnswerAndResult answerAndResult = new AnswerAndResult();
                 answerAndResult.correctAnswer = room.answer;
-                foreach (Player p in room.playerList)
-                {
-                    p.Connection.Send(answerAndResult);
-                }
+
+                room.playerOne.Connection.Send(answerAndResult);
+                room.playerTwo.Connection.Send(answerAndResult);
+
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
@@ -114,20 +117,52 @@ namespace TriviaGameServer
 
                 c.Disconnect();
             });
+            protocol.RegisterMessageHandler<CreateRoom>((CreateRoom req, Connection c) =>
+            {
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                if (player == null)
+                {
+                    return;
+                }
+
+                Room room = new Room();
+                player.Room = room;
+                room.TryJoin(player);
+                string roomID = Guid.NewGuid().ToString();
+                rooms.TryAdd(roomID, room);
+            });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
             {
-                //TODO
-                // Check if req.RoomID is a valid room ID
-                // Get Room instance
-                // if room full:
-                //   send RoomFull message to player
-                // else:
-                //   Update connection-room mapping to reference room instance
-                //   Update room instance to reference/include player info
-                // choose who goes first, set turn info in room instance
-                // send AskForCard to player who goes first
-                // send NextPlayerTurn to player who goes second
+                Room room;
+                if (!rooms.ContainsKey(req.RoomID))
+                {
+                    return;
+                }
+
+                room = rooms[req.RoomID];
+                
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                if (player == null)
+                {
+                    return;
+                }
+
+                if (!room.TryJoin(player))
+                {
+                    c.Send(new RoomFull());
+                    return;
+                }
+
+                player.Room = room;
+
+                room.WhosTurn = RoomPlayer.PlayerOne;
+
+                room.playerOne.Connection.Send(new AskForCard()); // player one goes first
+                room.playerTwo.Connection.Send(new NextPlayerTurn(1, 0));
             });
+
             protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
             {
                 Player player;
@@ -137,32 +172,35 @@ namespace TriviaGameServer
                 {
                     return;
                 }
-                room.playerList.Remove(player);
+                room.TryLeave(player);
                 player.Room = null;
-                room.playerList[0].Connection.Send(new OpponentQuit());
+                if (room.playerOne != null)
+                {
+                    room.playerOne.Connection.Send(new OpponentQuit());
+                }
+                if (room.playerTwo != null)
+                {
+                    room.playerOne.Connection.Send(new OpponentQuit());
+                }
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
-                /// Sends one RoomList message to the client for each room that exists.
-                
-                //TODO replace mock data below with actual room list data
-                RoomEntry rl = new RoomEntry();
-                rl.roomID = "First Room";
-                rl.player1 = "Alice";
-                rl.player2 = "Bob";
-                c.Send(rl);
-                rl.roomID = "Second Room";
-                rl.player1 = "Josh";
-                rl.player2 = "";
-                c.Send(rl);
-                rl.roomID = "Third Room";
-                rl.player1 = "";
-                rl.player2 = "";
-                c.Send(rl);
-                rl.roomID = "Another Room";
-                rl.player1 = "";
-                rl.player2 = "Player Two";
-                c.Send(rl);
+                RoomEntry roomEntry = new RoomEntry();
+                foreach (KeyValuePair<string, Room> i in rooms)
+                {
+                    roomEntry.roomID = i.Key;
+                    roomEntry.player1 = "";
+                    roomEntry.player2 = "";
+                    if (i.Value.playerOne != null)
+                    {
+                        roomEntry.player1 = i.Value.playerOne.Name;
+                    }
+                    if (i.Value.playerTwo != null)
+                    {
+                        roomEntry.player2 = i.Value.playerTwo.Name;
+                    }
+                    c.Send(roomEntry);
+                }
             });
         }
 

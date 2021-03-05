@@ -314,7 +314,13 @@ namespace TriviaGameServerTests
         {
             for (int i = 0; i < recieved.Count; ++i)
             {
-                Assert.True(recieved[i].Count == 0, errorMessagePrefix + ": Client " + i + " recieved an unexpected message.");
+                string unexpectedMessageType = "";
+                if (recieved[i].Count > 0)
+                {
+                     unexpectedMessageType = recieved[i][0].MessageID();
+                }
+                Assert.True(recieved[i].Count == 0, errorMessagePrefix + ": Client " + i + " recieved an unexpected message of type " +
+                    unexpectedMessageType + ".");
             }
         }
 
@@ -369,8 +375,9 @@ namespace TriviaGameServerTests
             seq.addQuestion(new TriviaQuestion("Q?", "A", "B", "C", "D"), 'C');
             TriviaQuestion expected = seq.questions[0].question;
             seq.send(new Register("Player One"))
-                .send(new JoinRoom(getRooms()[0].roomID))
-                .send(1, new Register("Player Two"))
+                .send(new CreateRoom())
+                .test();
+            seq.send(1, new Register("Player Two"))
                 .send(1, new JoinRoom(getRooms()[0].roomID))
                 .expect<AskForCard>(new AskForCard())
                 .send(new ChosenCard(category))
@@ -411,7 +418,7 @@ namespace TriviaGameServerTests
             TriviaQuestion tq = new TriviaQuestion("Q?", "A", "B", "C", "D");
             seq.addQuestionSequence(tq, "AAAABBCCCCDDAA");
             seq.send(new Register("P1"))
-                .send(new JoinRoom(getRooms()[0].roomID))
+                .send(new CreateRoom())
                 .send(1, new Register("P2"))
                 .send(1, new JoinRoom(getRooms()[0].roomID))
                 // Player 1 (zero-indexed id=0) goes first
@@ -496,7 +503,9 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestListRoomsRequest()
         {
-            seq.send(new ListRoomsRequest())
+            seq.send(new Register("P1"))
+                .send(new CreateRoom())
+                .send(new ListRoomsRequest())
                 .expect<RoomEntry>()
                 .clearRecieved()
                 .test();
