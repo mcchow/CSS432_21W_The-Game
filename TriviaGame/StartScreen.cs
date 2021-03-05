@@ -105,6 +105,9 @@ namespace TriviaGameClient
         private void Createroom_Click(object sender, System.EventArgs e)
         {
             stage = "room";
+            CreateRoom createRoom = new CreateRoom();
+            connection.Send(createRoom);
+            protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);
         }
 
         private void Joinroom_Click(object sender, System.EventArgs e)
@@ -120,7 +123,6 @@ namespace TriviaGameClient
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
             stage = "cat";
-
         }
 
         public Connection connection;
@@ -197,6 +199,7 @@ namespace TriviaGameClient
                     Position = new Vector2(650, 65 + 40 * i),
                     Text = "Join"
                 };
+                //join a room when room button click
                 void joinroom_Click(object sender, System.EventArgs e)
                 {
                     stage = "room";
@@ -277,6 +280,7 @@ namespace TriviaGameClient
                     Position = new Vector2(100, 100 + 70 * i),
                     Text = name
                 };
+                //when ans click
                 void AnsClick(object sender, System.EventArgs e)
                 {
                     ans = i;
@@ -289,6 +293,7 @@ namespace TriviaGameClient
                     //get correct ans?
                     protocolin.RegisterMessageHandler<AnswerAndResult>(updateCorans);
                 }
+                
                 tempbutton.Click += AnsClick;
                 ansButtons.Add(tempbutton);
                 tempbutton = new Button(content.Load<Texture2D>("Buttong"), content.Load<SpriteFont>("normal"))
@@ -359,7 +364,7 @@ namespace TriviaGameClient
                 case "room":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     //update player name
-                    protocol.RegisterMessageHandler<AnswerAndResult>(updateCorans);
+                    //protocol.RegisterMessageHandler<AnswerAndResult>(updateCorans);
                     //show the name
                     for (int i = 0; i < numplayer; i++)
                     {
