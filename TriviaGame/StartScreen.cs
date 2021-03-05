@@ -12,7 +12,29 @@ namespace TriviaGameClient
 {
     class StartScreen : Component
     {
+        /// <summary>
+        /// test function
+        /// </summary>
+        public void blah ()
+        {
+            //protocol
+            //connection
 
+            /* Sends the message to the server immediately.*/
+            connection.Send(new JoinRoom("Some Room ID"));
+
+            /* Tells the protocol object to run the lambda function upon recipt whenever an AskForCard message is recieved.*/
+            protocol.RegisterMessageHandler<AskForCard>((AskForCard message, Connection c) =>
+            {
+
+            });
+
+        }
+
+        /// <summary>
+        /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /// </summary>
+        private bool gofirst = false;
         private string stage = "startScreen";
         //make const value on time in game
         /// <summary>
@@ -104,7 +126,8 @@ namespace TriviaGameClient
 
         private void Createroom_Click(object sender, System.EventArgs e)
         {
-            stage = "room";
+            stage = "wait";
+            waitingtext.Text = "Waiting for another player to Join";
             CreateRoom createRoom = new CreateRoom();
             connection.Send(createRoom);
             protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);
@@ -117,13 +140,19 @@ namespace TriviaGameClient
 
         private void backmeun_Click(object sender, System.EventArgs e)
         {
-            stage = "meun";
+            stage = "menu";
         }
 
+        /*
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
-            stage = "cat";
-        }
+            //protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);
+            if(playerlist[0].Text != "" && playerlist[1].Text != "")
+            {
+                stage = "cat";
+                stage = "wait";
+            }
+        }*/
 
         public Connection connection;
         public Protocol protocol;
@@ -136,6 +165,11 @@ namespace TriviaGameClient
         {
             playerlist[0].Text = a.player1;
             playerlist[1].Text = a.player2;
+        }
+
+        public void updatePlayStage(RoomEntry a, Connection b)
+        {
+            stage = "cat";
         }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
@@ -237,13 +271,7 @@ namespace TriviaGameClient
                 };
                 playerlist.Add(tempbutton);
             }
-            playButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
-            {
-                Position = new Vector2(350, 400),
-                Text = "Play"
-            };
-
-            playButton.Click += gotoplay_Click;
+            
 
             //playButtons.Click += Createroom_Click;
 
@@ -261,6 +289,7 @@ namespace TriviaGameClient
                 void CatClick(object sender, System.EventArgs e)
                 {
                     //do somthing with server
+                    
                     stage = "play";
                 }
                 tempbutton.Click += CatClick;
@@ -323,7 +352,7 @@ namespace TriviaGameClient
             waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(50, 60),
-                Text = "Waiting for other player to answer the Question..."
+                Text = "Waiting for other player..."
             };
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///result
@@ -347,12 +376,14 @@ namespace TriviaGameClient
                     startButton.Draw(gameTime, spriteBatch);
                     textField.Draw(gameTime, spriteBatch);
                     break;
-                case "meun":
+                case "menu":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     CreatelobbyButton.Draw(gameTime, spriteBatch);
                     JoinlobbyButton.Draw(gameTime, spriteBatch);
+                    gofirst = true;
                     break;
                 case "lobby":
+                    gofirst = false;
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     for (int i = 0; i < numroom; i++)
@@ -361,19 +392,8 @@ namespace TriviaGameClient
                         roomlist[i].Draw(gameTime, spriteBatch);
                     }
                     break;
-                case "room":
-                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
-                    //update player name
-                    //protocol.RegisterMessageHandler<AnswerAndResult>(updateCorans);
-                    //show the name
-                    for (int i = 0; i < numplayer; i++)
-                    {
-                        playerlist[i].Draw(gameTime, spriteBatch);
-                    }
-                    playButton.Draw(gameTime, spriteBatch);
-                    lobbybackmeunButton.Draw(gameTime, spriteBatch);
-                    break;
                 case "cat":
+                    //protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);??????
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     foreach (Button button in CatButton)
                     {
@@ -436,7 +456,7 @@ namespace TriviaGameClient
                     startButton.Update(gameTime);
                     textField.Update(gameTime);
                     break;
-                case "meun":
+                case "menu":
                     CreatelobbyButton.Update(gameTime);
                     JoinlobbyButton.Update(gameTime);
                     break;

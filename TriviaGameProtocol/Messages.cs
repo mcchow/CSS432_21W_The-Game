@@ -538,7 +538,6 @@ namespace TriviaGameProtocol
 
     public class ListRoomsRequest : MessageType
     {
-        public string roomID;
 
         public override void FromBytes(byte[] bytes)
         {}
