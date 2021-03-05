@@ -29,12 +29,12 @@ namespace TriviaGameServer
         private ConcurrentDictionary<string, Room> rooms;
         // database connection here? is thread safe?
 
-        public Server(QuestionSource qsrc)
+        public Server(int port, QuestionSource qsrc)
         {
             questionSource = qsrc;
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            IPEndPoint serverEndPoint = new IPEndPoint(0, 8080);
+            IPEndPoint serverEndPoint = new IPEndPoint(0, port);
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
@@ -86,9 +86,15 @@ namespace TriviaGameServer
                         return;
                     }
                 }
+
+                // set next player's turn
+                room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
+
                 AnswerAndResult answerAndResult = new AnswerAndResult();
                 answerAndResult.correctAnswer = room.answer;
-
+                answerAndResult.whosTurn = roomPlayer == RoomPlayer.PlayerTwo ? 1 : 2;
+                answerAndResult.numCards = player.Points;
+                
                 room.playerOne.Connection.Send(answerAndResult);
                 room.playerTwo.Connection.Send(answerAndResult);
 
@@ -231,7 +237,7 @@ namespace TriviaGameServer
         }
         static void Main(string[] args)
         {
-            Server s = new Server(new SqliteQuestionSource());
+            Server s = new Server(8080, new SqliteQuestionSource());
             s.listen();
         }
 
