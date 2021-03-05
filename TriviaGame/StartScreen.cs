@@ -6,11 +6,13 @@ using TriviaGameClient.Control;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using TriviaGameProtocol;
 
 namespace TriviaGameClient
 {
     class StartScreen : Component
     {
+
         private string stage = "startScreen";
         //make const value on time in game
         /// <summary>
@@ -44,6 +46,7 @@ namespace TriviaGameClient
         /// <summary>
         /// room
         /// </summary>
+        private int roomnum = -1;
         private Button playButton;
         private List<Button> playerlist = new List<Button>();
         private int numplayer = 2;
@@ -63,7 +66,7 @@ namespace TriviaGameClient
         private string Question = "Question";
         private Button QuestionBox;
         private int ans = -1;
-        private int CorrectAns = 1;
+        private int CorrectAns = -1;
         private const int timer = 20;
         private bool update = false;
         private int count = -1;
@@ -80,6 +83,7 @@ namespace TriviaGameClient
         private Button winlosetext;
         private string gameresult = "";
 
+
         private void setQuestion()
         {
             QuestionBox.Text = Question;
@@ -89,6 +93,8 @@ namespace TriviaGameClient
         {
             Next?.Invoke(this, textField.Text);
             //do something with the text here????
+            //send user name
+            
 
             if (stage != "meun") stage = "meun";
             else stage = "startScreen";
@@ -109,20 +115,35 @@ namespace TriviaGameClient
             stage = "meun";
         }
 
-        private void joinroom_Click(object sender, System.EventArgs e)
-        {
-            stage = "room";
-        }
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
             stage = "cat";
 
         }
 
+        public Connection connection;
+        public Protocol protocol;
+        //updater
+        public void updateCorans(AnswerAndResult a , Connection b) {
+            CorrectAns = a.correctAnswer-97;// case char to int, -97, lazy chasing
+        }
 
-
-        public StartScreen(ContentManager content)
+        public void updateplayerlist(RoomEntry a, Connection b)
         {
+            playerlist[0].Text = a.player1;
+            playerlist[1].Text = a.player2;
+        }
+
+
+        public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
+        {
+            ////////////////////////////////////////////
+            /// set up connection
+
+            connection = connectionin;
+            protocol = protocolin;
+
+            //
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///start page
             ///
@@ -144,6 +165,9 @@ namespace TriviaGameClient
             {
                 Position = new Vector2(350, 200),
                 Text = "Create Lobby"
+
+                //find the first empty room and join it
+
             };
             CreatelobbyButton.Click += Createroom_Click;
 
@@ -172,6 +196,14 @@ namespace TriviaGameClient
                     Position = new Vector2(650, 65 + 40 * i),
                     Text = "Join"
                 };
+                void joinroom_Click(object sender, System.EventArgs e)
+                {
+                    stage = "room";
+                    //send room
+                    JoinRoom test = new JoinRoom(i.ToString());
+                    connection.Send(test);
+                    roomnum = i;
+                }
                 tempbutton.Click += joinroom_Click;
                 JoinroomButtons.Add(tempbutton);
             }
@@ -247,7 +279,14 @@ namespace TriviaGameClient
                 void AnsClick(object sender, System.EventArgs e)
                 {
                     ans = i;
+                    //send the ans
+                    PlayerAnswer tempans = new PlayerAnswer();
+                    tempans.playerAns = (char)(i + 97);
+                    connection.Send(tempans);
+                    //set show ans timer
                     count = 100;
+                    //get correct ans?
+                    protocolin.RegisterMessageHandler<AnswerAndResult>(updateCorans);
                 }
                 tempbutton.Click += AnsClick;
                 ansButtons.Add(tempbutton);
@@ -318,6 +357,9 @@ namespace TriviaGameClient
                     break;
                 case "room":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    //update player name
+                    protocol.RegisterMessageHandler<AnswerAndResult>(updateCorans);
+                    //show the name
                     for (int i = 0; i < numplayer; i++)
                     {
                         playerlist[i].Draw(gameTime, spriteBatch);
@@ -370,6 +412,7 @@ namespace TriviaGameClient
                     break;
                 case "waiting":
                     waitingtext.Draw(gameTime, spriteBatch);
+                    break;
                 case "result":
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     winlosetext.Draw(gameTime, spriteBatch);
