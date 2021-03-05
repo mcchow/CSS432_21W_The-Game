@@ -70,17 +70,6 @@ namespace TriviaGameServerTests
         public MockServer()
         {
             questions = new MockQuestionSource();
-
-            Question q = new Question();
-            TriviaQuestion tq = new TriviaQuestion();
-            tq.question = "Question?";
-            tq.optionA = "Option A.";
-            tq.optionB = "Option B.";
-            tq.optionC = "Option C.";
-            tq.optionD = "Option D.";
-            q.question = tq;
-            q.answer = 'C';
-            questions.questions.Add(q);
             server = new Server(questions);
             serverThread = new Thread(new ThreadStart(server.listen));
             serverThread.Start();
@@ -95,6 +84,27 @@ namespace TriviaGameServerTests
 
     public class ClientServerSeq : IDisposable
     {
+        public List<Question> questions
+        {
+            get
+            {
+                return server.questions.questions;
+            } set
+            {
+                server.questions.questions = value;
+            }
+        }
+        public List<string> questionRequests
+        {
+            get
+            {
+                return server.questions.questionRequests;
+            }
+            set
+            {
+                server.questions.questionRequests = value;
+            }
+        }
         public MockServer server;
         public List<MockClient> clients;
         public List<SeqEvent> sequence;
@@ -104,6 +114,8 @@ namespace TriviaGameServerTests
 
         public struct SeqEvent
         {
+            public bool LogEvent;
+            public string logMessage;
             public bool ClearRecieved;
             public int PlayerIndex;
             public bool Expectation;
@@ -126,6 +138,22 @@ namespace TriviaGameServerTests
             errorMessagePrefix = "";
         }
 
+        public void addQuestion(TriviaQuestion triviaQuestion, char answer)
+        {
+            Question q = new Question();
+            q.question = triviaQuestion;
+            q.answer = answer;
+            questions.Add(q);
+        }
+
+        public void addQuestionSequence(TriviaQuestion triviaQuestion, string answers)
+        {
+            foreach (char c in answers)
+            {
+                addQuestion(triviaQuestion, c);
+            }
+        }
+
         public void Dispose()
         {
             server.Stop();
@@ -133,6 +161,11 @@ namespace TriviaGameServerTests
             {
                 client.Stop();
             }
+        }
+
+        public void clearErrorPrefix()
+        {
+            errorMessagePrefix = "";
         }
 
         public ClientServerSeq expect<T>(T message) where T : MessageType, new()
@@ -181,9 +214,65 @@ namespace TriviaGameServerTests
             return this;
         }
 
+        public ClientServerSeq log(string message)
+        {
+            SeqEvent e = new SeqEvent();
+            e.LogEvent = true;
+            e.logMessage = message;
+            sequence.Add(e);
+            return this;
+        }
+
+        public ClientServerSeq expectWrong(int playerIndex, int nextPlayerIndex, string category, char answer)
+        {
+            //TODO fix expectations
+            this.log(".expectWrong(" + playerIndex + "," + nextPlayerIndex + "," + category + "," + answer + ") {")
+                .expect<AskForCard>(playerIndex, new AskForCard())
+                .send(playerIndex, new ChosenCard(category))
+                .expect<TriviaQuestion>(playerIndex)
+                .send(playerIndex, new PlayerAnswer(answer))
+                .expect<AnswerAndResult>(playerIndex)
+                .expect<AnswerAndResult>(nextPlayerIndex)
+                .log("}");
+            return this;
+        }
+
+        public ClientServerSeq expectRight(int playerIndex, int nextPlayerIndex, string category, char answer)
+        {
+            //TODO fix expectations
+            this.log(".expectWrong(" + playerIndex + "," + nextPlayerIndex + "," + category + "," + answer + ") {")
+                .expect<AskForCard>(playerIndex, new AskForCard())
+                .send(playerIndex, new ChosenCard(category))
+                .expect<TriviaQuestion>(playerIndex)
+                .send(playerIndex, new PlayerAnswer(answer))
+                .expect<AnswerAndResult>(playerIndex)
+                .expect<AnswerAndResult>(nextPlayerIndex)
+                .log("}");
+            return this;
+        }
+
+        public ClientServerSeq expectWin(int playerIndex, int nextPlayerIndex, string category, char answer)
+        {
+            //TODO fix expectations
+            this.log(".expectWrong(" + playerIndex + "," + nextPlayerIndex + "," + category + "," + answer + ") {")
+                .expect<AskForCard>(playerIndex, new AskForCard())
+                .send(playerIndex, new ChosenCard(category))
+                .expect<TriviaQuestion>(playerIndex)
+                .send(playerIndex, new PlayerAnswer(answer))
+                .expect<Winner>(playerIndex)
+                .expect<Winner>(nextPlayerIndex)
+                .log("}");
+            return this;
+        }
+
         public ClientServerSeq test()
         {
             foreach (SeqEvent e in sequence) {
+                if (e.LogEvent)
+                {
+                    errorMessagePrefix += e.logMessage + "\n";
+                    continue;
+                }
                 if (e.ClearRecieved)
                 {
                     foreach (List<MessageType> recievedList in recieved)
@@ -201,7 +290,7 @@ namespace TriviaGameServerTests
                 } else
                 {
                     errorMessagePrefix += ".expect<"+e.MessageID+">(" + e.PlayerIndex + ", ...)\n";
-                    Thread.Sleep(1);
+                    Thread.Sleep(10);
                     foreach (MockClient c in clients)
                     {
                         c.protocol.HandleMessages();
@@ -217,6 +306,7 @@ namespace TriviaGameServerTests
             }
             checkForUnexpectedMessage();
             errorMessagePrefix += ".test()\n";
+            sequence.Clear();
             return this;
         }
 
@@ -244,15 +334,48 @@ namespace TriviaGameServerTests
             seq.Dispose();
         }
 
-        [Fact]
-        public void TestChosenCard()
+        private List<RoomEntry> getRooms()
         {
-            ChosenCard msg = new ChosenCard();
-            msg.Card = "CategoryName";
-            TriviaQuestion expected = seq.server.questions.questions[0].question;
+            Boolean gettingRooms = new bool();
+            gettingRooms = true;
+            List<RoomEntry> rooms = new List<RoomEntry>();
+            seq.clients[0].protocol.RegisterMessageHandler<RoomEntry>((RoomEntry roomEntry, Connection c) =>
+            {
+                if (gettingRooms)
+                {
+                    rooms.Add(roomEntry);
+                }
+            });
+            ChosenCard choseCard = new ChosenCard();
+            choseCard.Card = "Category"; //TODO use correct card category here!
+            seq.send(new ListRoomsRequest())
+                .expect<RoomEntry>()
+                .clearRecieved()
+                .test();
+            gettingRooms = false; // Prevent further modification of returned room list by future RoomEntry events.
+            seq.clearErrorPrefix();
+            return rooms;
+        }
 
-            seq.send(msg).expect(expected).test();
-
+        [Theory]
+        [InlineData("History")]
+        [InlineData("Art")]
+        [InlineData("Science")]
+        [InlineData("Geography")]
+        [InlineData("Sports")]
+        [InlineData("Entertainment")]
+        public void TestChosenCardWithValidCategory(string category)  // Currently fails because JoinRoom handler is not implemented
+        {
+            seq.addQuestion(new TriviaQuestion("Q?", "A", "B", "C", "D"), 'C');
+            TriviaQuestion expected = seq.questions[0].question;
+            seq.send(new Register("Player One"))
+                .send(new JoinRoom(getRooms()[0].roomID))
+                .send(1, new Register("Player Two"))
+                .send(1, new JoinRoom(getRooms()[0].roomID))
+                .expect<AskForCard>(new AskForCard())
+                .send(new ChosenCard(category))
+                .expect<TriviaQuestion>(expected)
+                .test();
         }
 
         // PlayerAnswer:
@@ -266,29 +389,17 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestPlayerAnswer_RespondsWithAnswerAndResultIfNoWinner()
         {
-            Register register = new Register();
-            register.Name = "PlayerName!";
-            Register register2 = new Register();
-            register2.Name = "Player2Name!";
-            ListRoomsRequest listRoomsRequest = new ListRoomsRequest();
-            JoinRoom joinRoom = new JoinRoom();
+            //This test case assumes that player one goes first!
             AnswerAndResult answerAndResult = new AnswerAndResult();
+            //TODO need to set answerAndResult.numCards
             answerAndResult.correctAnswer = 'C';
-            seq.clients[0].protocol.RegisterMessageHandler<RoomEntry>((RoomEntry roomEntry, Connection c) =>
-            {
-                joinRoom.RoomID = roomEntry.roomID;
-            });
-            ChosenCard choseCard = new ChosenCard();
-            choseCard.Card = "Category"; //TODO use correct card category here!
-            seq.send(register)
-                .send(listRoomsRequest)
-                .expect<RoomEntry>() // We should get at least one RoomEntry message, but might get more, so
-                .clearRecieved() // we clear the recieved message queue to prevent test failure from unexpected messages.
-                .send(joinRoom)
-                .send(1, register2)
-                .send(1, joinRoom)
+            answerAndResult.whosTurn = 1; //TODO should be player two's turn, is this zero-indexed?
+            seq.send(new Register("Player One"))
+                .send(new JoinRoom(getRooms()[0].roomID))
+                .send(1, new Register("Player Two"))
+                .send(1, new JoinRoom(getRooms()[0].roomID))
                 .expect<AskForCard>(new AskForCard())
-                .send(choseCard)
+                .send(new ChosenCard("Category"))
                 .expect<AnswerAndResult>(answerAndResult)
                 .expect<AnswerAndResult>(1, answerAndResult)
                 .test();
@@ -297,8 +408,32 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestPlayerAnswer_RespondsWithWinnerIfWon()
         {
-
-            Assert.True(false, "Test not implemented");
+            TriviaQuestion tq = new TriviaQuestion("Q?", "A", "B", "C", "D");
+            seq.addQuestionSequence(tq, "AAAABBCCCCDDAA");
+            seq.send(new Register("P1"))
+                .send(new JoinRoom(getRooms()[0].roomID))
+                .send(1, new Register("P2"))
+                .send(1, new JoinRoom(getRooms()[0].roomID))
+                // Player 1 (zero-indexed id=0) goes first
+                .expectRight(0, 1, "History", 'A')
+                .expectRight(0, 1, "Art", 'A')
+                .expectRight(0, 1, "Science", 'A')
+                .expectRight(0, 1, "Geography", 'A')
+                .expectRight(0, 1, "Sports", 'B')
+                .expectWrong(0, 1, "Entertainment", 'A')
+                // Player 2
+                .expectRight(1, 0, "Geography", 'C')
+                .expectRight(1, 0, "Sports", 'C')
+                .expectRight(1, 0, "Entertainment", 'C')
+                .expectRight(1, 0, "Science", 'C')
+                .expectRight(1, 0, "Art", 'D')
+                .expectWrong(1, 0, "History", 'C')
+                .log("Both players should now be tied w/ 5 cards each.")
+                // Player 1
+                .expectWrong(0, 1, "History", 'A')
+                // Player 2
+                .expectWin(1, 0, "Entertainment", 'A')
+                .test();
         }
 
         [Fact]

@@ -56,6 +56,7 @@ namespace TriviaGameServer
                 connectionMap.TryGetValue(c, out player);
                 Room room = player.Room;
                 room.answer = corAns;
+                c.Send(Q);
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
             {

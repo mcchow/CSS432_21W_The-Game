@@ -354,8 +354,8 @@ namespace TriviaGameProtocol
     public class AnswerAndResult : MessageType     
     {
         public char correctAnswer;
-        private int numCards;
-        private int whosTurn;
+        public int numCards;
+        public int whosTurn;
 
         public AnswerAndResult()
         {
