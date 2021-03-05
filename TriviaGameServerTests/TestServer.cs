@@ -432,13 +432,13 @@ namespace TriviaGameServerTests
         public void TestPlayerAnswer_RespondsWithWinnerIfWon()
         {
             TriviaQuestion tq = new TriviaQuestion("Q?", "A", "B", "C", "D");
-            seq.addQuestionSequence(tq, "AAAABBCCCCDDAA");
+            seq.addQuestionSequence(tq, "BAAABBCCCCDDAA");
             seq.send(new Register("P1"))
                 .send(new CreateRoom())
                 .send(1, new Register("P2"))
                 .send(1, new JoinRoom(getRooms()[0].roomID))
                 // Player 1 (zero-indexed id=0) goes first
-                .expectRight(0, 1, "History", 'A')
+                .expectRight(0, 1, "History", 'B')
                 .expectRight(0, 1, "Art", 'A')
                 .expectRight(0, 1, "Science", 'A')
                 .expectRight(0, 1, "Geography", 'A')
@@ -453,9 +453,9 @@ namespace TriviaGameServerTests
                 .expectWrong(1, 0, "History", 'C')
                 .log("Both players should now be tied w/ 5 cards each.")
                 // Player 1
-                .expectWrong(0, 1, "History", 'A')
+                .expectWrong(0, 1, "History", 'B')
                 // Player 2
-                .expectWin(1, 0, "Entertainment", 'A')
+                .expectWin(1, 0, "History", 'A')
                 .test();
         }
 

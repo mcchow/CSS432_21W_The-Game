@@ -58,6 +58,7 @@ namespace TriviaGameServer
                 connectionMap.TryGetValue(c, out player);
                 Room room = player.Room;
                 room.answer = corAns;
+                room.cardCategory = card.Card;
                 c.Send(Q);
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
@@ -77,7 +78,8 @@ namespace TriviaGameServer
                 if (msg.playerAns == room.answer)
                 {
                     player.Points++;
-                    if (player.Points > 6) //TODO 
+                    player.CollectedCards.Add(room.cardCategory);
+                    if (player.CollectedCards.Count >= 6)
                     {
                         Winner winner = new Winner();
                         winner.winner = player.Name;
@@ -86,9 +88,11 @@ namespace TriviaGameServer
                         return;
                     }
                 }
-
-                // set next player's turn
-                room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
+                else
+                {
+                    // set next player's turn
+                    room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
+                }
 
                 AnswerAndResult answerAndResult = new AnswerAndResult();
                 answerAndResult.correctAnswer = room.answer;
@@ -97,6 +101,22 @@ namespace TriviaGameServer
                 
                 room.playerOne.Connection.Send(answerAndResult);
                 room.playerTwo.Connection.Send(answerAndResult);
+                if (msg.playerAns == room.answer)
+                {
+                    // got it right, get to choose another category
+                    c.Send(new AskForCard());
+                } else
+                {
+                    // send opponent request for category choice
+                    if (roomPlayer == RoomPlayer.PlayerOne)
+                    {
+                        room.playerTwo.Connection.Send(new AskForCard());
+                    }
+                    else
+                    {
+                        room.playerOne.Connection.Send(new AskForCard());
+                    }
+                }
 
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>

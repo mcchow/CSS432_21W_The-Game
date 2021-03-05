@@ -9,6 +9,7 @@ namespace TriviaGameServer
 
     public class Room
     {
+        public string cardCategory;
         private Player mPlayerOne;
         private Player mPlayerTwo;
         private readonly object playerLock = new object();
