@@ -14,7 +14,7 @@ namespace TriviaGameClient.Control
         private EventHandler Action;
         private HashSet<Keys> keysPressedLastUpdate;
 
-        public string Text = "Name Here";
+        public string Text = "";
         public Color TextColor = Color.Black;
         public Color BackgroundColor = Color.White;
         public Texture2D BackgroundTexture;

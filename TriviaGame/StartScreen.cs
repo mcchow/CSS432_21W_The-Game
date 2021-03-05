@@ -94,6 +94,9 @@ namespace TriviaGameClient
             Next?.Invoke(this, textField.Text);
             //do something with the text here????
             //send user name
+            Register tempuser = new Register();
+            tempuser.Name = textField.Text;
+            connection.Send(tempuser);
 
             if (stage != "meun") stage = "meun";
             else stage = "startScreen";
