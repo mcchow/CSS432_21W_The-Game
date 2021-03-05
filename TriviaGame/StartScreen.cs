@@ -94,7 +94,6 @@ namespace TriviaGameClient
             Next?.Invoke(this, textField.Text);
             //do something with the text here????
             //send user name
-            
 
             if (stage != "meun") stage = "meun";
             else stage = "startScreen";
@@ -133,7 +132,6 @@ namespace TriviaGameClient
             playerlist[0].Text = a.player1;
             playerlist[1].Text = a.player2;
         }
-
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
