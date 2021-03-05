@@ -117,6 +117,28 @@ namespace TriviaGameProtocol
         }
     }
 
+    public class CreateRoom : MessageType
+    {
+        public override bool Equals(object obj)
+        {
+            return obj != null && (obj is RoomFull);
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+        }
+
+        public override string MessageID()
+        {
+            return "CreateRoom";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
+        }
+    }
+
     public class JoinRoom : MessageType
     {
         public string RoomID;
@@ -686,6 +708,28 @@ namespace TriviaGameProtocol
             {
                 return true;
             }
+        }
+    }
+
+    public class RoomFull : MessageType
+    {
+        public override bool Equals(object obj)
+        {
+            return obj != null && (obj is RoomFull);
+        }
+
+        public override void FromBytes(byte[] bytes)
+        {
+        }
+
+        public override string MessageID()
+        {
+            return "RoomFull";
+        }
+
+        public override byte[] ToBytes()
+        {
+            return new byte[0];
         }
     }
 
