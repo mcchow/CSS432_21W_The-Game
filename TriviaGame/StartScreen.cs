@@ -128,6 +128,7 @@ namespace TriviaGameClient
 
         private void Joinroom_Click(object sender, System.EventArgs e)
         {
+            roomlist.Clear();
             points = 0;
             PointBox.Text = "Score:" + points.ToString();
             roomnum = 0;
