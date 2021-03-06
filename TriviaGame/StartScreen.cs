@@ -68,7 +68,7 @@ namespace TriviaGameClient
         /// <summary>
         /// room
         /// </summary>
-        private int roomnum = -1;
+        private int roomnum = 0;
         private Button playButton;
         private List<Button> playerlist = new List<Button>();
         private int numplayer = 2;
@@ -82,6 +82,7 @@ namespace TriviaGameClient
         /// <summary>
         /// gmae
         /// </summary>
+        public List<string> Playername;
         private List<Button> ansButtons = new List<Button>();
         private List<Button> ansButtonsr = new List<Button>(); //red background
         private List<Button> ansButtonsg = new List<Button>(); // green background
@@ -92,6 +93,7 @@ namespace TriviaGameClient
         private const int timer = 20;
         private bool update = false;
         private int count = -1;
+        private int points = 0;
 
         /// <summary>
         /// waiting
@@ -130,11 +132,12 @@ namespace TriviaGameClient
             waitingtext.Text = "Waiting for another player to Join";
             CreateRoom createRoom = new CreateRoom();
             connection.Send(createRoom);
-            protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);
         }
 
         private void Joinroom_Click(object sender, System.EventArgs e)
         {
+            roomnum = 0;
+            connection.Send(new ListRoomsRequest());
             stage = "lobby";
         }
 
@@ -153,7 +156,7 @@ namespace TriviaGameClient
                 stage = "wait";
             }
         }*/
-
+        ContentManager contentManager;
         public Connection connection;
         public Protocol protocol;
         //updater
@@ -161,22 +164,46 @@ namespace TriviaGameClient
             CorrectAns = a.correctAnswer-97;// case char to int, -97, lazy chasing
         }
 
-        public void updateplayerlist(RoomEntry a, Connection b)
+        public void updateRoomList(RoomEntry a, Connection b)
         {
-            playerlist[0].Text = a.player1;
+            Button tempbutton = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(650, 65 + 40 * roomlist.Count),
+                Text = "Join"
+            };
+            //join a room when room button click
+            void joinroom_Click(object sender, System.EventArgs e)
+            {
+                stage = "room";
+                //send room
+                JoinRoom test = new JoinRoom(a.roomID);
+                connection.Send(test);
+                roomnum++;
+            }
+            tempbutton.Click += joinroom_Click;
+            roomlist.Add(tempbutton);
             playerlist[1].Text = a.player2;
         }
 
-        public void updatePlayStage(RoomEntry a, Connection b)
+        public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
-            stage = "cat";
+            points = a.curNumCards;
+            waitingtext.Text = "Wait for another player to Answer the question..."
+            stage = "wait";
+        }
+
+        public void answerAndResult(AnswerAndResult a, Connection b)
+        {
+            CorrectAns = a.correctAnswer-97;
         }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
+            contentManager = content;
             ////////////////////////////////////////////
             /// set up connection
-
+            protocol.RegisterMessageHandler<RoomEntry>(updateRoomList);
+            protocol.RegisterMessageHandler<NextPlayerTurn>(nextPlayerTurn);
             connection = connectionin;
             protocol = protocolin;
 
@@ -402,7 +429,7 @@ namespace TriviaGameClient
                     break;
                 case "play":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
-                    if (ans == -1)
+                    if (CorrectAns == -1)
                         for (int i = 0; i < 4; i++)
                         {
                             ansButtons[i].Draw(gameTime, spriteBatch);
@@ -427,9 +454,10 @@ namespace TriviaGameClient
                         }
                         else
                         {
+                            CorrectAns = -1;
                             ans = -1;
                             //To Do go to waiting screen
-                            stage = "result";
+                            stage = "waiting";
 
                         }
                         
