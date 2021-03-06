@@ -15,21 +15,24 @@ namespace TriviaGameClient
         /// <summary>
         /// test function
         /// </summary>
+        /// 
+        /*
         public void blah ()
         {
             //protocol
             //connection
 
-            /* Sends the message to the server immediately.*/
+            // Sends the message to the server immediately.
             connection.Send(new JoinRoom("Some Room ID"));
 
-            /* Tells the protocol object to run the lambda function upon recipt whenever an AskForCard message is recieved.*/
+            // Tells the protocol object to run the lambda function upon recipt whenever an AskForCard message is recieved.
             protocol.RegisterMessageHandler<AskForCard>((AskForCard message, Connection c) =>
             {
 
             });
 
         }
+        */
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +199,27 @@ namespace TriviaGameClient
         {
             CorrectAns = a.correctAnswer-97;
         }
+        public void updateQuestion(TriviaQuestion a, Connection b)
+        {
+            QuestionBox.Text = a.question;
+            ansButtons[0].Text = a.optionA;
+            ansButtonsg[0].Text = a.optionA;
+            ansButtonsr[0].Text = a.optionA;
+            ansButtons[1].Text = a.optionB;
+            ansButtonsg[1].Text = a.optionB;
+            ansButtonsr[1].Text = a.optionB;
+            ansButtons[2].Text = a.optionC;
+            ansButtonsg[2].Text = a.optionC;
+            ansButtonsr[2].Text = a.optionC;
+            ansButtons[3].Text = a.optionD;
+            ansButtonsg[3].Text = a.optionD;
+            ansButtonsr[3].Text = a.optionD;
+            stage = "play";
+        }
+        public void askForCard(AskForCard a, Connection b)
+        {
+            stage = "cat";
+        }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -204,6 +228,9 @@ namespace TriviaGameClient
             /// set up connection
             protocol.RegisterMessageHandler<RoomEntry>(updateRoomList);
             protocol.RegisterMessageHandler<NextPlayerTurn>(nextPlayerTurn);
+            protocol.RegisterMessageHandler<TriviaQuestion>(updateQuestion);
+            protocol.RegisterMessageHandler<AskForCard>(askForCard);
+            
             connection = connectionin;
             protocol = protocolin;
 
