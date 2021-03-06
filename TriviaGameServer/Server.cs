@@ -23,7 +23,22 @@ namespace TriviaGameServer
         private QuestionSource questionSource;
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
-        public volatile bool listening = false;
+        private readonly object serverLock = new object();
+        private bool mListening = false;
+        public bool listening
+        {
+            get
+            {
+                return mListening;
+            }
+            set
+            {
+                lock(serverLock)
+                {
+                    mListening = value;
+                }
+            }
+        }
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
         private ConcurrentDictionary<string, Room> rooms;
