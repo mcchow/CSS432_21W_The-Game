@@ -85,6 +85,7 @@ namespace TriviaGameClient
         private int count = -1;
         //number of card that user have(points)
         private int points = 0;
+        private Button PointBox;
 
         /// <summary>
         /// waiting
@@ -121,6 +122,7 @@ namespace TriviaGameClient
         {
             stage = "wait";
             points = 0;
+            PointBox.Text = "Score:" + points.ToString();
             waitingtext.Text = "Waiting for another player to Join";
             CreateRoom createRoom = new CreateRoom();
             connection.Send(createRoom);
@@ -129,6 +131,7 @@ namespace TriviaGameClient
         private void Joinroom_Click(object sender, System.EventArgs e)
         {
             points = 0;
+            PointBox.Text = "Score:" + points.ToString();
             roomnum = 0;
             connection.Send(new ListRoomsRequest());
             stage = "lobby";
@@ -162,6 +165,7 @@ namespace TriviaGameClient
         public void updateRoomList(RoomEntry a, Connection b)
         {
             points = 0;
+            PointBox.Text = "Score:" + points.ToString();
             Button tempbutton = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(650, 65 + 40 * roomlist.Count),
@@ -184,7 +188,7 @@ namespace TriviaGameClient
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
             points = a.curNumCards;
-
+            PointBox.Text = "Score:" + points.ToString();
             waitingtext.Text = "Wait for " + a.whosTurn + " to Answer the question...";
             stage = "wait";
         }
@@ -193,6 +197,7 @@ namespace TriviaGameClient
         {
             CorrectAns = a.correctAnswer-97;
             points = a.numCards;
+            PointBox.Text = "Score" + a.numCards.ToString();
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
         {
@@ -234,8 +239,13 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<AskForCard>(askForCard);
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
-            
 
+            //point box
+            PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(350, 10),
+                Text = ""
+            };
 
             //
             /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -452,6 +462,7 @@ namespace TriviaGameClient
                 case "cat":
                     //protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);??????
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    PointBox.Draw(gameTime, spriteBatch);
                     foreach (Button button in CatButton)
                     {
                         button.Draw(gameTime, spriteBatch);
@@ -459,6 +470,7 @@ namespace TriviaGameClient
                     break;
                 case "play":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    PointBox.Draw(gameTime, spriteBatch);
                     if (CorrectAns == -1)
                         for (int i = 0; i < 4; i++)
                         {
@@ -496,9 +508,11 @@ namespace TriviaGameClient
                     break;
                 case "waiting":
                     waitingtext.Draw(gameTime, spriteBatch);
+                    PointBox.Draw(gameTime, spriteBatch);
                     break;
                 case "result":
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
+                    PointBox.Draw(gameTime, spriteBatch);
                     winlosetext.Draw(gameTime, spriteBatch);
                     break;
             }
