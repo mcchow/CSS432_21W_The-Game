@@ -113,9 +113,7 @@ namespace TriviaGameClient
             Register tempuser = new Register();
             tempuser.Name = textField.Text;
             connection.Send(tempuser);
-
-            if (stage != "meun") stage = "meun";
-            else stage = "startScreen";
+            stage = "meun";
         }
 
         private void Createroom_Click(object sender, System.EventArgs e)
