@@ -16,23 +16,6 @@ namespace TriviaGameClient
         /// test function
         /// </summary>
         /// 
-        /*
-        public void blah ()
-        {
-            //protocol
-            //connection
-
-            // Sends the message to the server immediately.
-            connection.Send(new JoinRoom("Some Room ID"));
-
-            // Tells the protocol object to run the lambda function upon recipt whenever an AskForCard message is recieved.
-            protocol.RegisterMessageHandler<AskForCard>((AskForCard message, Connection c) =>
-            {
-
-            });
-
-        }
-        */
 
         /// <summary>
         /// /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -149,6 +132,8 @@ namespace TriviaGameClient
             stage = "menu";
         }
 
+       
+
         /*
         private void gotoplay_Click(object sender, System.EventArgs e)
         {
@@ -221,6 +206,10 @@ namespace TriviaGameClient
         {
             stage = "cat";
         }
+        public void opponentQuit(OpponentQuit a, Connection b)
+        {
+            stage = "meun";
+        }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -231,6 +220,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<NextPlayerTurn>(nextPlayerTurn);
             protocol.RegisterMessageHandler<TriviaQuestion>(updateQuestion);
             protocol.RegisterMessageHandler<AskForCard>(askForCard);
+            protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             
             connection = connectionin;
             protocol = protocolin;
@@ -344,7 +334,7 @@ namespace TriviaGameClient
                 void CatClick(object sender, System.EventArgs e)
                 {
                     //do somthing with server
-                    
+                    connection.Send(new ChosenCard(cat));
                     stage = "play";
                 }
                 tempbutton.Click += CatClick;
