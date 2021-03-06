@@ -181,6 +181,25 @@ namespace TriviaGameClient
             roomnum++;
             tempbutton.Click += joinroom_Click;
             roomlist.Add(tempbutton);
+
+
+            Button tempbutton2 = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(650, 65 + 40 * roomnum),
+                Text = "Join"
+            };
+            //join a room when room button click
+            void joinroom_Click2(object sender, System.EventArgs e)
+            {
+                stage = "room";
+                //send room
+                JoinRoom test = new JoinRoom(a.roomID);
+                connection.Send(test);
+                //roomnum = i;
+            }
+            tempbutton2.Click += joinroom_Click;
+            JoinroomButtons.Add(tempbutton2);
+
             playerlist[1].Text = a.player2;
         }
 
@@ -291,7 +310,7 @@ namespace TriviaGameClient
                 Text = "Back"
             };
             lobbybackmeunButton.Click += backmeun_Click;
-
+            /*
             for (int i = 0; i < 7; i++)
             {
                 Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
@@ -310,7 +329,7 @@ namespace TriviaGameClient
                 }
                 tempbutton.Click += joinroom_Click;
                 JoinroomButtons.Add(tempbutton);
-            }
+            }*/
             for (int i = 0; i < 7; i++)
             {
                 String name = String.Format("Room {0}", i);
@@ -453,7 +472,7 @@ namespace TriviaGameClient
                     gofirst = false;
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
-                    for (int i = 0; i < numroom; i++)
+                    for (int i = 0; i < roomnum; i++)
                     {
                         JoinroomButtons[i].Draw(gameTime, spriteBatch);
                         roomlist[i].Draw(gameTime, spriteBatch);
@@ -541,7 +560,7 @@ namespace TriviaGameClient
                     break;
                 case "room":
                     lobbybackmeunButton.Update(gameTime);
-                    playButton.Update(gameTime);
+                    //playButton.Update(gameTime);
                     break;
                 case "cat":
                     foreach (Button button in CatButton)
