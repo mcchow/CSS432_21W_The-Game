@@ -214,6 +214,8 @@ namespace TriviaGameClient
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
             contentManager = content;
+            connection = connectionin;
+            protocol = protocolin;
             ////////////////////////////////////////////
             /// set up connection
             protocol.RegisterMessageHandler<RoomEntry>(updateRoomList);
@@ -222,8 +224,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<AskForCard>(askForCard);
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             
-            connection = connectionin;
-            protocol = protocolin;
+            
 
             //
             /////////////////////////////////////////////////////////////////////////////////////////////////////
