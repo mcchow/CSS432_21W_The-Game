@@ -441,7 +441,7 @@ namespace TriviaGameClient
                     startButton.Draw(gameTime, spriteBatch);
                     textField.Draw(gameTime, spriteBatch);
                     break;
-                case "menu":
+                case "meun":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     CreatelobbyButton.Draw(gameTime, spriteBatch);
                     JoinlobbyButton.Draw(gameTime, spriteBatch);
@@ -526,7 +526,7 @@ namespace TriviaGameClient
                     startButton.Update(gameTime);
                     textField.Update(gameTime);
                     break;
-                case "menu":
+                case "meun":
                     CreatelobbyButton.Update(gameTime);
                     JoinlobbyButton.Update(gameTime);
                     break;
