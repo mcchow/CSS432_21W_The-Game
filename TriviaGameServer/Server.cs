@@ -23,7 +23,23 @@ namespace TriviaGameServer
         private QuestionSource questionSource;
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
-        public volatile bool listening = false;
+        private readonly object serverLock = new object();
+        private bool mListening = false;
+        public bool listening
+        {
+            get
+            {
+                return mListening;
+            }
+            set
+            {
+                lock(serverLock)
+                {
+                    mListening = value;
+                }
+            }
+        }
+        private int port;
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
         private ConcurrentDictionary<string, Room> rooms;
@@ -31,10 +47,13 @@ namespace TriviaGameServer
 
         public Server(int port, QuestionSource qsrc)
         {
+            this.port = port;
             questionSource = qsrc;
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            IPEndPoint serverEndPoint = new IPEndPoint(0, port);
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
+            IPAddress serverIP = serverHostEntry.AddressList[0];
+            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, port);
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
@@ -246,7 +265,7 @@ namespace TriviaGameServer
 
         public void listen()
         {
-            Console.WriteLine("Server is Listening!");
+            Console.WriteLine("Server is Listening on port "+port+"!");
             listening = true;
             socket.Listen(MAX_CONCURRENT_CONNECTIONS);
             while (listening)

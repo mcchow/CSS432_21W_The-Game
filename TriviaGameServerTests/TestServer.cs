@@ -20,13 +20,15 @@ namespace TriviaGameServerTests
         {
             protocol = new QueuedProtocol();
             this.port = port;
+            Thread.Sleep(10);
             connect();
         }
 
         private void connect()
         {
+            Console.WriteLine("Attempting to connect to port " + port);
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
             IPAddress serverIP = serverHostEntry.AddressList[0];
             IPEndPoint serverEndPoint = new IPEndPoint(serverIP, port);
             sd.Connect(serverEndPoint);
