@@ -68,17 +68,22 @@ namespace TriviaGameClient
         /// <summary>
         /// gmae
         /// </summary>
-        public List<string> Playername;
+        //public List<string> Playername;
         private List<Button> ansButtons = new List<Button>();
         private List<Button> ansButtonsr = new List<Button>(); //red background
         private List<Button> ansButtonsg = new List<Button>(); // green background
         private string Question = "Question";
         private Button QuestionBox;
+        // the player answered Question
         private int ans = -1;
+        //correct answer index, -1 is not recevie 
         private int CorrectAns = -1;
+        //const timer for answering question, currently not using
         private const int timer = 20;
-        private bool update = false;
+
+        //a timer for some function
         private int count = -1;
+        //number of card that user have(points)
         private int points = 0;
 
         /// <summary>
@@ -115,6 +120,7 @@ namespace TriviaGameClient
         private void Createroom_Click(object sender, System.EventArgs e)
         {
             stage = "wait";
+            points = 0;
             waitingtext.Text = "Waiting for another player to Join";
             CreateRoom createRoom = new CreateRoom();
             connection.Send(createRoom);
@@ -122,6 +128,7 @@ namespace TriviaGameClient
 
         private void Joinroom_Click(object sender, System.EventArgs e)
         {
+            points = 0;
             roomnum = 0;
             connection.Send(new ListRoomsRequest());
             stage = "lobby";
@@ -154,6 +161,7 @@ namespace TriviaGameClient
 
         public void updateRoomList(RoomEntry a, Connection b)
         {
+            points = 0;
             Button tempbutton = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(650, 65 + 40 * roomlist.Count),
@@ -184,6 +192,7 @@ namespace TriviaGameClient
         public void answerAndResult(AnswerAndResult a, Connection b)
         {
             CorrectAns = a.correctAnswer-97;
+            points = a.numCards;
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
         {
@@ -210,6 +219,7 @@ namespace TriviaGameClient
         {
             stage = "meun";
         }
+        
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -223,8 +233,9 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<TriviaQuestion>(updateQuestion);
             protocol.RegisterMessageHandler<AskForCard>(askForCard);
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
+            protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
             
-            
+
 
             //
             /////////////////////////////////////////////////////////////////////////////////////////////////////
