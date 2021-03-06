@@ -191,7 +191,8 @@ namespace TriviaGameClient
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
             points = a.curNumCards;
-            waitingtext.Text = "Wait for another player to Answer the question..."
+            
+            waitingtext.Text = "Wait for "+ a.whosTurn + " to Answer the question..."
             stage = "wait";
         }
 
