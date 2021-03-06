@@ -56,8 +56,11 @@ namespace TriviaGameClient
 
         protected override void Initialize()
         {
-            base.Initialize();
+            // connect needs to be called first because base.Initialize calls LoadContent,
+            // which requires connection to be a valid Connection instance so it can be passed
+            // to the StartStreen constructor.
             connect();
+            base.Initialize();
         }
 
         private void StartScreen_Next(object sender, string name)
