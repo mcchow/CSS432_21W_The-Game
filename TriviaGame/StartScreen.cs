@@ -138,7 +138,7 @@ namespace TriviaGameClient
 
         private void backmeun_Click(object sender, System.EventArgs e)
         {
-            stage = "menu";
+            stage = "meun";
         }
 
        
@@ -306,7 +306,7 @@ namespace TriviaGameClient
                     //send room
                     JoinRoom test = new JoinRoom(i.ToString());
                     connection.Send(test);
-                    roomnum = i;
+                    //roomnum = i;
                 }
                 tempbutton.Click += joinroom_Click;
                 JoinroomButtons.Add(tempbutton);
