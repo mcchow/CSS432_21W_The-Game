@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -292,17 +292,17 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            int countBytesQuestion = ASCIIEncoding.Unicode.GetByteCount(question);
-            int countBytesOpA = ASCIIEncoding.Unicode.GetByteCount(optionA);
-            int countBytesOpB = ASCIIEncoding.Unicode.GetByteCount(optionB);
-            int countBytesOpC = ASCIIEncoding.Unicode.GetByteCount(optionC);
-            int countBytesOpD = ASCIIEncoding.Unicode.GetByteCount(optionD);
+            int countBytesQuestion = Encoding.UTF8.GetByteCount(question);
+            int countBytesOpA = Encoding.UTF8.GetByteCount(optionA);
+            int countBytesOpB = Encoding.UTF8.GetByteCount(optionB);
+            int countBytesOpC = Encoding.UTF8.GetByteCount(optionC);
+            int countBytesOpD = Encoding.UTF8.GetByteCount(optionD);
             
             string delim = "\0";
-            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            int countBytesDelim = Encoding.UTF8.GetByteCount(delim);
             byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
 
-            int totalByteCount = countBytesQuestion + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD + (4 * countBytesDelim);
+            int totalByteCount = countBytesQuestion + countBytesOpA + countBytesOpB + countBytesOpC + countBytesOpD + (5 * countBytesDelim);
 
             byte[] triviaQues = new byte[totalByteCount];
 
@@ -355,7 +355,7 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            byte[] pAns = new byte[0];
+            byte[] pAns = new byte[1];
             pAns[0] = (byte)playerAns;
             return pAns;
         }
@@ -449,13 +449,13 @@ namespace TriviaGameProtocol
 
             for (int i = 0; i < bytes.Length; i++)
             {
-                if (i <= 4)
+                if (i < 4)
                 {
                     whosTurnBytes[i] = bytes[i];
                 }
                 else
                 {
-                    curNumCardsBytes[i] = bytes[i];
+                    curNumCardsBytes[i-4] = bytes[i];
                 }
             }
 
@@ -538,7 +538,7 @@ namespace TriviaGameProtocol
 
     public class ListRoomsRequest : MessageType
     {
-        int roomnum;
+
         public override void FromBytes(byte[] bytes)
         {}
 
