@@ -177,8 +177,8 @@ namespace TriviaGameClient
                 //send room
                 JoinRoom test = new JoinRoom(a.roomID);
                 connection.Send(test);
-                roomnum++;
             }
+            roomnum++;
             tempbutton.Click += joinroom_Click;
             roomlist.Add(tempbutton);
             playerlist[1].Text = a.player2;
