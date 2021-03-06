@@ -339,6 +339,7 @@ namespace TriviaGameClient
             }
             
 
+
             //playButtons.Click += Createroom_Click;
 
             //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -505,7 +506,7 @@ namespace TriviaGameClient
                     }
                     QuestionBox.Draw(gameTime, spriteBatch);
                     break;
-                case "waiting":
+                case "wait":
                     waitingtext.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
                     break;
