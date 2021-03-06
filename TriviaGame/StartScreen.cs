@@ -533,7 +533,7 @@ namespace TriviaGameClient
                     break;
                 case "lobby":
                     lobbybackmeunButton.Update(gameTime);
-                    for (int i = 0; i < numroom; i++)
+                    for (int i = 0; i < JoinroomButtons.Count; i++)
                     {
                         JoinroomButtons[i].Update(gameTime);
                     }
