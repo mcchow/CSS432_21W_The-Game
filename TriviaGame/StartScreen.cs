@@ -541,7 +541,6 @@ namespace TriviaGameClient
                     break;
                 case "room":
                     lobbybackmeunButton.Update(gameTime);
-                    playButton.Update(gameTime);
                     break;
                 case "cat":
                     foreach (Button button in CatButton)
