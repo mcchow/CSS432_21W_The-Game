@@ -182,10 +182,6 @@ namespace TriviaGameClient
                 connection.Send(test);
             }
             
-            //tempbutton.Click += joinroom_Click;
-            roomlist.Add(tempbutton);
-
-
             Button tempbutton2 = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(650, 65 + 40 * roomnum),
