@@ -99,7 +99,6 @@ namespace TriviaGameClient
         private Button winlosetext;
         private string gameresult = "";
 
-
         private void setQuestion()
         {
             QuestionBox.Text = Question;
@@ -245,7 +244,12 @@ namespace TriviaGameClient
         {
             stage = "meun";
         }
-        
+        public void winner(Winner a, Connection b)
+        {
+            winlosetext.Text = a.winner + "wins the game";
+            stage = "result";
+        }
+
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -260,6 +264,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<AskForCard>(askForCard);
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
+            protocol.RegisterMessageHandler<Winner>(winner);
 
             //point box
             PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
@@ -559,6 +564,7 @@ namespace TriviaGameClient
                     break;
                 case "result":
                     lobbybackmeunButton.Update(gameTime);
+
                     break;
             }
         }
