@@ -599,30 +599,27 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            int countBytesRoomID = ASCIIEncoding.Unicode.GetByteCount(roomID);
-            int countBytesP1 = ASCIIEncoding.Unicode.GetByteCount(player1);
-            int countBytesP2 = ASCIIEncoding.Unicode.GetByteCount(player2);
-
             string delim = "\0";
-            int countBytesDelim = ASCIIEncoding.Unicode.GetByteCount(delim);
+            int countBytesDelim = Encoding.UTF8.GetByteCount(delim);
             byte[] delimBytes = Encoding.UTF8.GetBytes(delim);
 
-            int totalByteCount = countBytesRoomID + countBytesP1 + countBytesP2 + (2 * countBytesDelim);
-
-            byte[] roomEntry = new byte[totalByteCount];
 
             byte[] roomIDByte = Encoding.UTF8.GetBytes(roomID);
             byte[] player1Byte = Encoding.UTF8.GetBytes(player1);
             byte[] player2Byte = Encoding.UTF8.GetBytes(player2);
+            
+            int totalByteCount = roomIDByte.Length + player1Byte.Length + player2Byte.Length + (2 * countBytesDelim);
+
+            byte[] roomEntry = new byte[totalByteCount];
 
             roomIDByte.CopyTo(roomEntry, 0);
-            delimBytes.CopyTo(roomEntry, countBytesRoomID);
+            delimBytes.CopyTo(roomEntry, roomIDByte.Length);
 
-            player1Byte.CopyTo(roomEntry, countBytesRoomID + countBytesDelim);
+            player1Byte.CopyTo(roomEntry, roomIDByte.Length + countBytesDelim);
 
-            delimBytes.CopyTo(roomEntry, countBytesRoomID + countBytesDelim + countBytesP1);
+            delimBytes.CopyTo(roomEntry, roomIDByte.Length + countBytesDelim + player1Byte.Length);
 
-            player2Byte.CopyTo(roomEntry, countBytesRoomID + countBytesP1 + (2 * countBytesDelim));
+            player2Byte.CopyTo(roomEntry, roomIDByte.Length + player1Byte.Length + (2 * countBytesDelim));
 
             return roomEntry;
         }
