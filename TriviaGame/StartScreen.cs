@@ -219,6 +219,8 @@ namespace TriviaGameClient
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
         {
+            ans = -1;
+            CorrectAns = -1;
             QuestionBox.Text = a.question;
             ansButtons[0].Text = a.optionA;
             ansButtonsg[0].Text = a.optionA;
@@ -310,26 +312,6 @@ namespace TriviaGameClient
                 Text = "Back"
             };
             lobbybackmeunButton.Click += backmeun_Click;
-            /*
-            for (int i = 0; i < 7; i++)
-            {
-                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
-                {
-                    Position = new Vector2(650, 65 + 40 * i),
-                    Text = "Join"
-                };
-                //join a room when room button click
-                void joinroom_Click(object sender, System.EventArgs e)
-                {
-                    stage = "room";
-                    //send room
-                    JoinRoom test = new JoinRoom(i.ToString());
-                    connection.Send(test);
-                    //roomnum = i;
-                }
-                tempbutton.Click += joinroom_Click;
-                JoinroomButtons.Add(tempbutton);
-            }*/
             for (int i = 0; i < 7; i++)
             {
                 String name = String.Format("Room {0}", i);
@@ -401,12 +383,11 @@ namespace TriviaGameClient
                     ans = i;
                     //send the ans
                     PlayerAnswer tempans = new PlayerAnswer();
-                    tempans.playerAns = (char)(i + 97);
+                    tempans.playerAns = (char)(i + 65);
                     connection.Send(tempans);
                     //set show ans timer
                     count = 100;
                     //get correct ans?
-                    protocolin.RegisterMessageHandler<AnswerAndResult>(updateCorans);
                 }
                 
                 tempbutton.Click += AnsClick;
