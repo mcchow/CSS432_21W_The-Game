@@ -265,7 +265,12 @@ namespace TriviaGameClient
         {
             spriteBatch.DrawString(contentManager.Load<SpriteFont>("normal"), ErrorText, new Vector2(20, 450), Color.Red);
         }
-
+        public void OpponentQuit(OpponentQuit gameTime, SpriteBatch spriteBatch)
+        {
+            ErrorText = "Opponent Quit";
+            Errorcount = 100;
+            stage = "meun";
+        }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -282,6 +287,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
             protocol.RegisterMessageHandler<Winner>(winner);
             protocol.RegisterMessageHandler<RoomFull>(roomFull);
+            protocol.RegisterMessageHandler<OpponentQuit>(OpponentQuit);
 
             //point box
             PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
