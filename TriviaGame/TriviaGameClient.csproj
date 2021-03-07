@@ -6,7 +6,8 @@
     <TieredCompilation>false</TieredCompilation>
 	<PublishSingleFile>true</PublishSingleFile>
 	<SelfContained>true</SelfContained>
-	<PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationManifest>app.manifest</ApplicationManifest>

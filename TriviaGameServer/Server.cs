@@ -53,7 +53,7 @@ namespace TriviaGameServer
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
             IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
             IPAddress serverIP = serverHostEntry.AddressList[0];
-            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, port);
+            IPEndPoint serverEndPoint = new IPEndPoint(0, port);
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
@@ -265,6 +265,7 @@ namespace TriviaGameServer
 
         public void listen()
         {
+            Console.WriteLine("Starting CSS432 Trivia Game Server");
             Console.WriteLine("Server is Listening on port "+port+"!");
             listening = true;
             socket.Listen(MAX_CONCURRENT_CONNECTIONS);
@@ -276,7 +277,7 @@ namespace TriviaGameServer
         }
         static void Main(string[] args)
         {
-            Server s = new Server(8080, new SqliteQuestionSource());
+            Server s = new Server(8087, new SqliteQuestionSource());
             s.listen();
         }
 

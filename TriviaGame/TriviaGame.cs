@@ -43,9 +43,9 @@ namespace TriviaGameClient
         private void connect()
         {
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("trivia.joshuasterner.com");
             IPAddress serverIP = serverHostEntry.AddressList[0];
-            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8080);
+            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8087);
             sd.Connect(serverEndPoint); //TODO handle connection failure
 
             connection = new Connection(sd, protocol);
