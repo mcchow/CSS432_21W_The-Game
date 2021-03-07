@@ -221,6 +221,7 @@ namespace TriviaGameClient
         {
             ans = -1;
             CorrectAns = -1;
+            count = 0;
             QuestionBox.Text = a.question;
             ansButtons[0].Text = a.optionA;
             ansButtonsg[0].Text = a.optionA;
