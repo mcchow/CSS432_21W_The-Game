@@ -1,0 +1,31 @@
+resources:
+- name: resource-repo
+  type: git
+  source:
+    uri: https://github.com/mcchow/CSS432_21W_The-Game.git
+    branch: ((branch))
+    username: joshua-sterner
+    password: ((githubToken))
+
+jobs:
+- name: run-tests
+  public: true
+  plan:
+  - get: resource-repo
+    trigger: true
+  - in_parallel:
+    - try:
+        task: run-client-tests
+        file: resource-repo/ci/task_run_tests.yml
+        vars:
+          test_path: "resource-repo/TriviaGameClientTests"
+    - task: run-server-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/TriviaGameServerTests"
+    - task: run-protocol-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/ProtocolTests"
+  - task: publish-exe
+    file: resource-repo/ci/task_publish_exe.yml
