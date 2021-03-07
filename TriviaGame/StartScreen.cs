@@ -128,6 +128,7 @@ namespace TriviaGameClient
         private void Joinroom_Click(object sender, System.EventArgs e)
         {
             roomlist.Clear();
+            JoinroomButtons.Clear();
             points = 0;
             PointBox.Text = "Score:" + points.ToString();
             roomnum = 0;
@@ -162,13 +163,16 @@ namespace TriviaGameClient
 
         public void updateRoomList(RoomEntry a, Connection b)
         {
+            roomnum++;
             points = 0;
             PointBox.Text = "Score:" + points.ToString();
-            Button tempbutton = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
+            String name = String.Format("{0}'s Room", a.player1);
+            Button tempbutton = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"))
             {
-                Position = new Vector2(650, 65 + 40 * roomlist.Count),
-                Text = "Join"
+                Position = new Vector2(50, 60 + 40 * roomnum),
+                Text = name
             };
+            roomlist.Add(tempbutton);
             //join a room when room button click
             void joinroom_Click(object sender, System.EventArgs e)
             {
@@ -177,8 +181,8 @@ namespace TriviaGameClient
                 JoinRoom test = new JoinRoom(a.roomID);
                 connection.Send(test);
             }
-            roomnum++;
-            tempbutton.Click += joinroom_Click;
+            
+            //tempbutton.Click += joinroom_Click;
             roomlist.Add(tempbutton);
 
 
@@ -187,15 +191,7 @@ namespace TriviaGameClient
                 Position = new Vector2(650, 65 + 40 * roomnum),
                 Text = "Join"
             };
-            //join a room when room button click
-            void joinroom_Click2(object sender, System.EventArgs e)
-            {
-                stage = "room";
-                //send room
-                JoinRoom test = new JoinRoom(a.roomID);
-                connection.Send(test);
-                //roomnum = i;
-            }
+            
             tempbutton2.Click += joinroom_Click;
             JoinroomButtons.Add(tempbutton2);
 
@@ -323,6 +319,7 @@ namespace TriviaGameClient
                 Text = "Back"
             };
             lobbybackmeunButton.Click += backmeun_Click;
+            /*
             for (int i = 0; i < 7; i++)
             {
                 String name = String.Format("Room {0}", i);
@@ -333,7 +330,7 @@ namespace TriviaGameClient
                 };
                 roomlist.Add(tempbutton);
             }
-
+            */
 
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///room page
