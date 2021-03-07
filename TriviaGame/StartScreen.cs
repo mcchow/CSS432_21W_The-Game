@@ -40,6 +40,7 @@ namespace TriviaGameClient
         /// <summary>
         /// meun content
         /// </summary>
+        private Button unregisterButton;
         private Button CreatelobbyButton;
         private Button JoinlobbyButton;
         public event EventHandler<string> Next;
@@ -207,6 +208,14 @@ namespace TriviaGameClient
             //playerlist[1].Text = a.player2;
         }
 
+        //join a room when room button click
+        public void unregister_Click(object sender, System.EventArgs e)
+        {
+            stage = "startScreen";
+            //send room
+            connection.Send(new Unregister());
+        }
+
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
             points = a.curNumCards;
@@ -265,7 +274,12 @@ namespace TriviaGameClient
         {
             spriteBatch.DrawString(contentManager.Load<SpriteFont>("normal"), ErrorText, new Vector2(20, 450), Color.Red);
         }
-
+        public void opponentQuit(OpponentQuit gameTime, SpriteBatch spriteBatch)
+        {
+            ErrorText = "Opponent Quit";
+            Errorcount = 100;
+            stage = "meun";
+        }
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
         {
@@ -282,6 +296,8 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
             protocol.RegisterMessageHandler<Winner>(winner);
             protocol.RegisterMessageHandler<RoomFull>(roomFull);
+            protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
+
 
             //point box
             PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
@@ -307,7 +323,12 @@ namespace TriviaGameClient
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///meun page
             ///
-
+            unregisterButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            {
+                Position = new Vector2(10, 10),
+                Text = "Back"
+            };
+            unregisterButton.Click += unregister_Click;
             CreatelobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(350, 200),
@@ -476,6 +497,7 @@ namespace TriviaGameClient
                     break;
                 case "meun":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    unregisterButton.Draw(gameTime, spriteBatch);
                     CreatelobbyButton.Draw(gameTime, spriteBatch);
                     JoinlobbyButton.Draw(gameTime, spriteBatch);
                     gofirst = true;
@@ -571,6 +593,7 @@ namespace TriviaGameClient
                     textField.Update(gameTime);
                     break;
                 case "meun":
+                    unregisterButton.Update(gameTime);
                     CreatelobbyButton.Update(gameTime);
                     JoinlobbyButton.Update(gameTime);
                     break;
