@@ -10,16 +10,9 @@ image_resource:
 inputs:
 - name: resource-repo
 outputs:
-  name: TriviaGameClient64.exe
-  path: resource-repo/PublishedTriviaGame/TriviaGameClient.exe
+- name: "TriviaGameClient64.exe"
+- path: "resource-repo/PublishedTriviaGame/TriviaGameClient.exe"
 
 run:
-  path: apt
-  args: ["update"]
-run:
-  path: apt
-  args: ["install", "libfreetype6"]
-
-run:
-  path: dotnet
-  args: ["publish", "TriviaGame", "-o", "PublishedTriviaGame", "-r", "win-x64"]
+  path: bash
+  args: ["ci/deploy.sh"]
