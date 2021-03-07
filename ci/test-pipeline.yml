@@ -14,10 +14,11 @@ jobs:
   - get: resource-repo
     trigger: true
   - in_parallel:
-    - task: run-client-tests
-      file: resource-repo/ci/task_run_tests.yml
-      vars:
-        test_path: "resource-repo/TriviaGameClientTests"
+    - try:
+        task: run-client-tests
+        file: resource-repo/ci/task_run_tests.yml
+        vars:
+          test_path: "resource-repo/TriviaGameClientTests"
     - task: run-server-tests
       file: resource-repo/ci/task_run_tests.yml
       vars:
