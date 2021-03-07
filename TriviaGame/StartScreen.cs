@@ -249,6 +249,10 @@ namespace TriviaGameClient
             winlosetext.Text = a.winner + "wins the game";
             stage = "result";
         }
+        public void roomFull(RoomFull a, Connection b)
+        {
+            stage = "meun";
+        }
 
 
         public StartScreen(ContentManager content,Connection connectionin ,Protocol protocolin)
@@ -265,6 +269,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
             protocol.RegisterMessageHandler<Winner>(winner);
+            protocol.RegisterMessageHandler<RoomFull>(roomFull);
 
             //point box
             PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
