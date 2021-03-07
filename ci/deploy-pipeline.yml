@@ -9,10 +9,10 @@ resources:
 - name: deploy-repo
   type: git
   source:
-    uri: https://git.joshuasterner.com/css432project.git
+    uri: https://github.com/joshua-sterner/css432projectreleases.git
     branch: master
-    username: css432
-    password: ((css432gitpw))
+    username: joshua-sterner
+    password: ((githubToken))
 
 jobs:
 - name: test-and-deploy
