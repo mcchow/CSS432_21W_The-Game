@@ -43,7 +43,11 @@ namespace TriviaGameClient
         private void connect()
         {
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
+#if DEBUG
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
+#else
             IPHostEntry serverHostEntry = Dns.GetHostEntry("trivia.joshuasterner.com");
+#endif
             IPAddress serverIP = serverHostEntry.AddressList[0];
             IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8087);
             sd.Connect(serverEndPoint); //TODO handle connection failure

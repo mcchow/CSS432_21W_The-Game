@@ -28,7 +28,7 @@ namespace TriviaGameServerTests
         {
             Console.WriteLine("Attempting to connect to port " + port);
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
             IPAddress serverIP = serverHostEntry.AddressList[0];
             IPEndPoint serverEndPoint = new IPEndPoint(serverIP, port);
             sd.Connect(serverEndPoint);

@@ -58,7 +58,7 @@ jobs:
           apt install -y libfreetype6
           git clone deploy-repo trivia-game-deploy-exe
           cd resource-repo
-          dotnet publish TriviaGame -o ../trivia-game-deploy-exe/client -r win-x64
+          dotnet publish TriviaGame -o ../trivia-game-deploy-exe/client -r win-x64 -c Release
           dotnet publish TriviaGameServer --self-contained -o ../trivia-game-deploy-exe/server -r linux-x64
           cp TriviaGame.db ../trivia-game-deploy-exe/server/
           cd ../trivia-game-deploy-exe

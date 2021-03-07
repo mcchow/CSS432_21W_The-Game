@@ -51,9 +51,7 @@ namespace TriviaGameServer
             questionSource = qsrc;
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            IPHostEntry serverHostEntry = Dns.GetHostEntry("localhost");
-            IPAddress serverIP = serverHostEntry.AddressList[0];
-            IPEndPoint serverEndPoint = new IPEndPoint(0, port);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, port);
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
