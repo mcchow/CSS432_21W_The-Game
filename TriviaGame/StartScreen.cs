@@ -396,17 +396,18 @@ namespace TriviaGameClient
                     Text = name
                 };
                 //when ans click
+                int i2 = i;
                 void AnsClick(object sender, System.EventArgs e)
                 {
                     ans = i;
                     //send the ans
                     PlayerAnswer tempans = new PlayerAnswer();
-                    tempans.playerAns = (char)(i + 97);
+                    tempans.playerAns = (char)(i2 + 'a');
                     connection.Send(tempans);
                     //set show ans timer
                     count = 100;
                     //get correct ans?
-                    protocolin.RegisterMessageHandler<AnswerAndResult>(updateCorans);
+                    //protocolin.RegisterMessageHandler<AnswerAndResult>(updateCorans);
                 }
                 
                 tempbutton.Click += AnsClick;
@@ -424,7 +425,7 @@ namespace TriviaGameClient
                 };
                 ansButtonsr.Add(tempbutton);
             }
-
+            
             QuestionBox = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(50, 60),

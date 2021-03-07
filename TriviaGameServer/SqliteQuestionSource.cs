@@ -36,7 +36,7 @@ namespace TriviaGameServer
             List<string> message = new List<string>();
 
             // using Microsoft.Data.Sqlite
-            using (var connection = new SqliteConnection("Data Source=../../../../TriviaGame.db"))
+            using (var connection = new SqliteConnection("Data Source=TriviaGame.db"))
             {
                 connection.Open();
 
