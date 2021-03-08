@@ -494,6 +494,7 @@ namespace TriviaGameClient
                 case "startScreen":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     startButton.Draw(gameTime, spriteBatch);
+                    spriteBatch.DrawString(contentManager.Load<SpriteFont>("normal"), "Please enter a user name", new Vector2(300, 70), Color.Violet);
                     textField.Draw(gameTime, spriteBatch);
                     break;
                 case "meun":
