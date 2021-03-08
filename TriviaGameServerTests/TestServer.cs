@@ -20,7 +20,7 @@ namespace TriviaGameServerTests
         {
             protocol = new QueuedProtocol();
             this.port = port;
-            Thread.Sleep(10);
+            Thread.Sleep(50);
             connect();
         }
 
@@ -28,8 +28,7 @@ namespace TriviaGameServerTests
         {
             Console.WriteLine("Attempting to connect to port " + port);
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
-            IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
-            IPAddress serverIP = serverHostEntry.AddressList[0];
+            IPAddress serverIP = IPAddress.Parse("127.0.0.1");
             IPEndPoint serverEndPoint = new IPEndPoint(serverIP, port);
             sd.Connect(serverEndPoint);
 
@@ -303,7 +302,7 @@ namespace TriviaGameServerTests
                 } else
                 {
                     errorMessagePrefix += ".expect<"+e.MessageID+">(" + e.PlayerIndex + ", ...)\n";
-                    Thread.Sleep(10);
+                    Thread.Sleep(50);
                     foreach (MockClient c in clients)
                     {
                         c.protocol.HandleMessages();
