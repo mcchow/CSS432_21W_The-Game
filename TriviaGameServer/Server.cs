@@ -223,6 +223,7 @@ namespace TriviaGameServer
                     Room room;
                     if (!rooms.ContainsKey(req.RoomID))
                     {
+                        c.Send(new RoomUnavailable("Room closed."));
                         return;
                     }
 
@@ -237,7 +238,7 @@ namespace TriviaGameServer
 
                     if (!room.TryJoin(player))
                     {
-                        c.Send(new RoomFull());
+                        c.Send(new RoomUnavailable("Room full."));
                         return;
                     }
 

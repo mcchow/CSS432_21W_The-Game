@@ -264,7 +264,7 @@ namespace TriviaGameClient
             winlosetext.Text = a.winner + "wins the game";
             stage = "result";
         }
-        public void roomFull(RoomFull a, Connection b)
+        public void roomUnavailable(RoomUnavailable a, Connection b)
         {
             stage = "meun";
             ErrorText = "Room is Full";
@@ -296,7 +296,7 @@ namespace TriviaGameClient
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
             protocol.RegisterMessageHandler<AnswerAndResult>(answerAndResult);
             protocol.RegisterMessageHandler<Winner>(winner);
-            protocol.RegisterMessageHandler<RoomFull>(roomFull);
+            protocol.RegisterMessageHandler<RoomUnavailable>(roomUnavailable);
             protocol.RegisterMessageHandler<OpponentQuit>(opponentQuit);
 
 

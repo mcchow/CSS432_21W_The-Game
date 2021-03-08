@@ -189,7 +189,7 @@ namespace TriviaGameServerTests
 
 
         [Fact]
-        public void TestJoinRoom_Sends_RoomFull_If_Full()
+        public void TestJoinRoom_Sends_RoomUnavailable_If_Full()
         {
             seq.addClient()
                 .send(new Register("p1"))
@@ -199,7 +199,7 @@ namespace TriviaGameServerTests
             seq.send(1, new JoinRoom(getRooms()[0].roomID))
                 .send(2, new Register("p3"))
                 .send(2, new JoinRoom(getRooms()[0].roomID))
-                .expect<RoomFull>()
+                .expect<RoomUnavailable>()
                 .test();
         }
 
