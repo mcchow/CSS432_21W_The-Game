@@ -177,6 +177,7 @@ namespace TriviaGameServer
                 player.Room = room;
                 room.TryJoin(player);
                 string roomID = Guid.NewGuid().ToString();
+                room.roomID = roomID;
                 rooms.TryAdd(roomID, room);
             });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
@@ -221,6 +222,7 @@ namespace TriviaGameServer
                 }
                 room.TryLeave(player);
                 player.Room = null;
+                room.playerTwo.Room = null;
                 if (room.playerOne != null)
                 {
                     room.playerOne.Connection.Send(new OpponentQuit());
@@ -229,6 +231,8 @@ namespace TriviaGameServer
                 {
                     room.playerOne.Connection.Send(new OpponentQuit());
                 }
+                Room removed;
+                rooms.TryRemove(room.roomID, out removed);
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
