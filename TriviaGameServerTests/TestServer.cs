@@ -12,12 +12,17 @@ namespace TriviaGameServerTests
     
     public class ServerIntegrationTests : IDisposable
     {
+
+        private readonly static object portLock = new object();
         static int port = 8080;
 
         ClientServerSeq seq;
         public ServerIntegrationTests()
         {
-            seq = new ClientServerSeq(port++);
+            lock (portLock)
+            {
+                seq = new ClientServerSeq(port++);
+            }
         }
 
         public void Dispose()
