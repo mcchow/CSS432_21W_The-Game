@@ -119,6 +119,7 @@ namespace TriviaGameClient
             //send user name
             Register tempuser = new Register();
             tempuser.Name = textField.Text;
+            playername = textField.Text;
             connection.Send(tempuser);
             stage = "meun";
         }
@@ -213,7 +214,7 @@ namespace TriviaGameClient
         {
             stage = "startScreen";
             //send room
-            connection.Send(new Unregister());
+            connection.Send(new Unregister(playername));
         }
 
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
