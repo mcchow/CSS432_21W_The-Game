@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using TriviaGameProtocol;
+using Microsoft.Xna.Framework.Audio;
 
 namespace TriviaGameClient
 {
@@ -181,7 +182,7 @@ namespace TriviaGameClient
             points = 0;
             PointBox.Text = "Score:" + points.ToString();
             String name = a.player1 + "'s Room";
-            Button tempbutton = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"))
+            Button tempbutton = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"), contentManager.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(50, 60 + 40 * roomnum),
                 Text = name
@@ -197,7 +198,7 @@ namespace TriviaGameClient
                 connection.Send(test);
             }
 
-            Button tempbutton2 = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"))
+            Button tempbutton2 = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"), contentManager.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(650, 65 + 40 * roomnum),
                 Text = "Join"
@@ -301,7 +302,7 @@ namespace TriviaGameClient
 
 
             //point box
-            PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            PointBox = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(350, 10),
                 Text = ""
@@ -312,7 +313,7 @@ namespace TriviaGameClient
             ///start page
             ///
             background = content.Load<Texture2D>("backgroundworld"); // change these names to the names of your images
-            startButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            startButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(350, 200),
                 Text = "Start"
@@ -324,13 +325,13 @@ namespace TriviaGameClient
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///meun page
             ///
-            unregisterButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            unregisterButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(10, 10),
                 Text = "Back"
             };
             unregisterButton.Click += unregister_Click;
-            CreatelobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            CreatelobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(350, 200),
                 Text = "Create Lobby"
@@ -340,7 +341,7 @@ namespace TriviaGameClient
             };
             CreatelobbyButton.Click += Createroom_Click;
 
-            JoinlobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            JoinlobbyButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(350, 300),
                 Text = "Join Lobby"
@@ -351,7 +352,7 @@ namespace TriviaGameClient
             ///lobby page
             ///
 
-            lobbybackmeunButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            lobbybackmeunButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(10, 10),
                 Text = "Back"
@@ -361,7 +362,7 @@ namespace TriviaGameClient
             for (int i = 0; i < 7; i++)
             {
                 String name = String.Format("Room {0}", i);
-                Button tempbutton = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(50, 60 + 40 * i),
                     Text = name
@@ -373,7 +374,7 @@ namespace TriviaGameClient
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///room page
             ///
-            LeaveGameButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+            LeaveGameButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(10, 10),
                 Text = "Back"
@@ -383,7 +384,7 @@ namespace TriviaGameClient
             for (int i = 0; i < 7; i++)
             {
                 String name = String.Format("player {0}", i);
-                Button tempbutton = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(100, 60 + 70 * i),
                     Text = name
@@ -401,14 +402,14 @@ namespace TriviaGameClient
             int temp = 0;
             foreach (string cat in CardCat)
             {
-                Button tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(40 + 130 * temp, 200),
                     Text = cat
                 };
                 if( cat == "Entertainment")
                 {
-                    tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("small"))
+                    tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("small"), content.Load<SoundEffect>("hover"))
                     {
                         Position = new Vector2(40 + 130 * temp, 200),
                         Text = cat
@@ -433,7 +434,7 @@ namespace TriviaGameClient
             for (int i = 0; i < 4; i++)
             {
                 String name = String.Format("player {0}", i);
-                Button tempbutton = new Button(content.Load<Texture2D>("Buttonw"), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>("Buttonw"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(120, 200 + 50 * i),
                     Text = name
@@ -454,13 +455,13 @@ namespace TriviaGameClient
                 
                 tempbutton.Click += AnsClick;
                 ansButtons.Add(tempbutton);
-                tempbutton = new Button(content.Load<Texture2D>("Buttong"), content.Load<SpriteFont>("normal"))
+                tempbutton = new Button(content.Load<Texture2D>("Buttong"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(120, 200 + 50 * i),
                     Text = name
                 };
                 ansButtonsg.Add(tempbutton);
-                tempbutton = new Button(content.Load<Texture2D>("Buttonr"), content.Load<SpriteFont>("normal"))
+                tempbutton = new Button(content.Load<Texture2D>("Buttonr"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
                 {
                     Position = new Vector2(120, 200 + 50 * i),
                     Text = name
@@ -468,7 +469,7 @@ namespace TriviaGameClient
                 ansButtonsr.Add(tempbutton);
             }
             
-            QuestionBox = new Button(content.Load<Texture2D>("Question"), content.Load<SpriteFont>("normal"))
+            QuestionBox = new Button(content.Load<Texture2D>("Question"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(50, 60),
                 Text = Question
@@ -478,7 +479,7 @@ namespace TriviaGameClient
             ///wait
             ///
 
-            waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(50, 60),
                 Text = "Waiting for other player..."
@@ -487,7 +488,7 @@ namespace TriviaGameClient
             ///result
             ///
 
-            winlosetext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            winlosetext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(50, 60),
                 Text = "You Win"

@@ -7,9 +7,11 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Audio;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Media;
 
 namespace TriviaGameClient.Control
 {
@@ -27,6 +29,10 @@ namespace TriviaGameClient.Control
         private MouseState _previousMouse;
 
         private Texture2D _texture;
+
+        private SoundEffect soundEffects;
+
+        private int set = 0;
 
         #endregion
 
@@ -54,13 +60,15 @@ namespace TriviaGameClient.Control
 
         #region Methods
 
-        public Button(Texture2D texture, SpriteFont font)
+        public Button(Texture2D texture, SpriteFont font , SoundEffect effect)
         {
             _texture = texture;
 
             _font = font;
 
             PenColour = Color.Black;
+
+            soundEffects = effect;
         }
 
         public override void Draw(GameTime gameTime, SpriteBatch spriteBatch)
@@ -92,12 +100,21 @@ namespace TriviaGameClient.Control
 
             if (mouseRectangle.Intersects(Rectangle))
             {
+                if(set == 0)set++;
+                if (set == 1)
+                {
+                    soundEffects.Play();
+                    set++;
+                }
                 _isHovering = true;
-
                 if (_currentMouse.LeftButton == ButtonState.Released && _previousMouse.LeftButton == ButtonState.Pressed)
                 {
                     Click?.Invoke(this, new EventArgs());
                 }
+            }
+            else
+            {
+                set = 0;
             }
         }
 
