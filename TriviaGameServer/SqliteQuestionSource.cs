@@ -21,9 +21,9 @@ namespace TriviaGameServer
             TriviaQuestion Q = new TriviaQuestion();
             Q.question = q;
             Q.optionA = opA;
-            Q.optionA = opB;
-            Q.optionA = opC;
-            Q.optionA = opD;
+            Q.optionB = opB;
+            Q.optionC = opC;
+            Q.optionD = opD;
 
             Question res;
             res.question = Q;

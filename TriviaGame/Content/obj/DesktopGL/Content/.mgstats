@@ -1,3 +1,2 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
-"D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/Buttong.png","D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/Buttong.xnb","TextureProcessor","Texture2DContent",217,14485,0.1916633
-"D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/Buttonr.png","D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/Buttonr.xnb","TextureProcessor","Texture2DContent",216,14485,0.0025853
+"D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/File.spritefont","D:/Code/GitHub/CSS432_21W_The-Game/TriviaGame/Content/bin/DesktopGL/Content/normal.xnb","FontDescriptionProcessor","SpriteFontContent",2033,21538,0.3791358

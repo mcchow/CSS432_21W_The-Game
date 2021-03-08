@@ -43,9 +43,13 @@ namespace TriviaGameClient
         private void connect()
         {
             Socket sd = new Socket(SocketType.Stream, ProtocolType.Tcp);
+#if DEBUG
             IPHostEntry serverHostEntry = Dns.GetHostEntry("127.0.0.1");
+#else
+            IPHostEntry serverHostEntry = Dns.GetHostEntry("trivia.joshuasterner.com");
+#endif
             IPAddress serverIP = serverHostEntry.AddressList[0];
-            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8080);
+            IPEndPoint serverEndPoint = new IPEndPoint(serverIP, 8087);
             sd.Connect(serverEndPoint); //TODO handle connection failure
 
             connection = new Connection(sd, protocol);
@@ -56,8 +60,11 @@ namespace TriviaGameClient
 
         protected override void Initialize()
         {
-            base.Initialize();
+            // connect needs to be called first because base.Initialize calls LoadContent,
+            // which requires connection to be a valid Connection instance so it can be passed
+            // to the StartStreen constructor.
             connect();
+            base.Initialize();
         }
 
         private void StartScreen_Next(object sender, string name)

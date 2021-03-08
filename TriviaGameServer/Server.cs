@@ -23,21 +23,40 @@ namespace TriviaGameServer
         private QuestionSource questionSource;
         public const int MAX_WAITING_CONNECTIONS = 16;
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
-        public volatile bool listening = false;
+        private readonly object serverLock = new object();
+        private bool mListening = false;
+        public bool listening
+        {
+            get
+            {
+                return mListening;
+            }
+            set
+            {
+                lock(serverLock)
+                {
+                    mListening = value;
+                }
+            }
+        }
+        private int port;
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
+        private ConcurrentDictionary<string, Room> rooms;
         // database connection here? is thread safe?
 
-        public Server(QuestionSource qsrc)
+        public Server(int port, QuestionSource qsrc)
         {
+            this.port = port;
             questionSource = qsrc;
             socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
             socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
-            IPEndPoint serverEndPoint = new IPEndPoint(0, 8080);
+            IPEndPoint serverEndPoint = new IPEndPoint(IPAddress.Any, port);
             socket.Bind(serverEndPoint);
             SetupProtocol();
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
             connectionMap = new ConcurrentDictionary<Connection, Player>();
+            rooms = new ConcurrentDictionary<string, Room>();
         }
 
         private void SetupProtocol()
@@ -56,6 +75,7 @@ namespace TriviaGameServer
                 connectionMap.TryGetValue(c, out player);
                 Room room = player.Room;
                 room.answer = corAns;
+                room.cardCategory = card.Card;
                 c.Send(Q);
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
@@ -64,31 +84,57 @@ namespace TriviaGameServer
                 connectionMap.TryGetValue(c, out player);
                 Room room = player.Room;
 
-                if (room == null || room.playerList[room.whosTurn] != player)
+                RoomPlayer roomPlayer = room.playerOne == player ? RoomPlayer.PlayerOne : RoomPlayer.PlayerTwo;
+
+                if (room == null || room.WhosTurn != roomPlayer)
                 {
                     return;
                 }
+
                 //TODO perhaps game rule logic should be moved into Room?
                 if (msg.playerAns == room.answer)
                 {
                     player.Points++;
-                    if (player.Points > 6) //TODO 
+                    player.CollectedCards.Add(room.cardCategory);
+                    if (player.CollectedCards.Count >= 6)
                     {
                         Winner winner = new Winner();
                         winner.winner = player.Name;
-                        foreach (Player p in room.playerList)
-                        {
-                            p.Connection.Send(winner);
-                            return;
-                        }
+                        room.playerOne.Connection.Send(winner);
+                        room.playerTwo.Connection.Send(winner);
+                        return;
                     }
                 }
+                else
+                {
+                    // set next player's turn
+                    room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
+                }
+
                 AnswerAndResult answerAndResult = new AnswerAndResult();
                 answerAndResult.correctAnswer = room.answer;
-                foreach (Player p in room.playerList)
+                answerAndResult.whosTurn = roomPlayer == RoomPlayer.PlayerTwo ? 1 : 2;
+                answerAndResult.numCards = player.Points;
+                
+                room.playerOne.Connection.Send(answerAndResult);
+                room.playerTwo.Connection.Send(answerAndResult);
+                if (msg.playerAns == room.answer)
                 {
-                    p.Connection.Send(answerAndResult);
+                    // got it right, get to choose another category
+                    c.Send(new AskForCard());
+                } else
+                {
+                    // send opponent request for category choice
+                    if (roomPlayer == RoomPlayer.PlayerOne)
+                    {
+                        room.playerTwo.Connection.Send(new AskForCard());
+                    }
+                    else
+                    {
+                        room.playerOne.Connection.Send(new AskForCard());
+                    }
                 }
+
             });
             protocol.RegisterMessageHandler<Register>((Register registration, Connection c) =>
             {
@@ -114,20 +160,52 @@ namespace TriviaGameServer
 
                 c.Disconnect();
             });
+            protocol.RegisterMessageHandler<CreateRoom>((CreateRoom req, Connection c) =>
+            {
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                if (player == null)
+                {
+                    return;
+                }
+
+                Room room = new Room();
+                player.Room = room;
+                room.TryJoin(player);
+                string roomID = Guid.NewGuid().ToString();
+                rooms.TryAdd(roomID, room);
+            });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
             {
-                //TODO
-                // Check if req.RoomID is a valid room ID
-                // Get Room instance
-                // if room full:
-                //   send RoomFull message to player
-                // else:
-                //   Update connection-room mapping to reference room instance
-                //   Update room instance to reference/include player info
-                // choose who goes first, set turn info in room instance
-                // send AskForCard to player who goes first
-                // send NextPlayerTurn to player who goes second
+                Room room;
+                if (!rooms.ContainsKey(req.RoomID))
+                {
+                    return;
+                }
+
+                room = rooms[req.RoomID];
+                
+                Player player = null;
+                connectionMap.TryGetValue(c, out player);
+                if (player == null)
+                {
+                    return;
+                }
+
+                if (!room.TryJoin(player))
+                {
+                    c.Send(new RoomFull());
+                    return;
+                }
+
+                player.Room = room;
+
+                room.WhosTurn = RoomPlayer.PlayerOne;
+
+                room.playerOne.Connection.Send(new AskForCard()); // player one goes first
+                room.playerTwo.Connection.Send(new NextPlayerTurn(1, 0));
             });
+
             protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
             {
                 Player player;
@@ -137,32 +215,35 @@ namespace TriviaGameServer
                 {
                     return;
                 }
-                room.playerList.Remove(player);
+                room.TryLeave(player);
                 player.Room = null;
-                room.playerList[0].Connection.Send(new OpponentQuit());
+                if (room.playerOne != null)
+                {
+                    room.playerOne.Connection.Send(new OpponentQuit());
+                }
+                if (room.playerTwo != null)
+                {
+                    room.playerOne.Connection.Send(new OpponentQuit());
+                }
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
-                /// Sends one RoomList message to the client for each room that exists.
-                
-                //TODO replace mock data below with actual room list data
-                RoomEntry rl = new RoomEntry();
-                rl.roomID = "First Room";
-                rl.player1 = "Alice";
-                rl.player2 = "Bob";
-                c.Send(rl);
-                rl.roomID = "Second Room";
-                rl.player1 = "Josh";
-                rl.player2 = "";
-                c.Send(rl);
-                rl.roomID = "Third Room";
-                rl.player1 = "";
-                rl.player2 = "";
-                c.Send(rl);
-                rl.roomID = "Another Room";
-                rl.player1 = "";
-                rl.player2 = "Player Two";
-                c.Send(rl);
+                RoomEntry roomEntry = new RoomEntry();
+                foreach (KeyValuePair<string, Room> i in rooms)
+                {
+                    roomEntry.roomID = i.Key;
+                    roomEntry.player1 = "";
+                    roomEntry.player2 = "";
+                    if (i.Value.playerOne != null)
+                    {
+                        roomEntry.player1 = i.Value.playerOne.Name;
+                    }
+                    if (i.Value.playerTwo != null)
+                    {
+                        roomEntry.player2 = i.Value.playerTwo.Name;
+                    }
+                    c.Send(roomEntry);
+                }
             });
         }
 
@@ -182,7 +263,8 @@ namespace TriviaGameServer
 
         public void listen()
         {
-            Console.WriteLine("Server is Listening!");
+            Console.WriteLine("Starting CSS432 Trivia Game Server");
+            Console.WriteLine("Server is Listening on port "+port+"!");
             listening = true;
             socket.Listen(MAX_CONCURRENT_CONNECTIONS);
             while (listening)
@@ -193,7 +275,7 @@ namespace TriviaGameServer
         }
         static void Main(string[] args)
         {
-            Server s = new Server(new SqliteQuestionSource());
+            Server s = new Server(8087, new SqliteQuestionSource());
             s.listen();
         }
 

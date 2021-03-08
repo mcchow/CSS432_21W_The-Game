@@ -1,0 +1,73 @@
+resources:
+- name: resource-repo
+  type: git
+  source:
+    uri: https://github.com/mcchow/CSS432_21W_The-Game.git
+    branch: ((branch))
+    username: joshua-sterner
+    password: ((githubToken))
+- name: deploy-repo
+  type: git
+  source:
+    uri: https://github.com/joshua-sterner/css432projectreleases.git
+    branch: master
+    username: joshua-sterner
+    password: ((githubToken))
+
+jobs:
+- name: test-and-deploy
+  public: true
+  plan:
+  - get: resource-repo
+    trigger: true
+  - get: deploy-repo
+  - in_parallel:
+    - try:
+        task: run-client-tests
+        file: resource-repo/ci/task_run_tests.yml
+        vars:
+          test_path: "resource-repo/TriviaGameClientTests"
+    - try:
+        task: run-server-tests
+        file: resource-repo/ci/task_run_tests.yml
+        vars:
+          test_path: "resource-repo/TriviaGameServerTests"
+    - task: run-protocol-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/ProtocolTests"
+  - task: publish
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: "mcr.microsoft.com/dotnet/sdk"
+          tag: 3.1
+      inputs:
+        - name: resource-repo
+        - name: deploy-repo
+      outputs:
+        - name: trivia-game-deploy-exe
+      run:
+        path: bash
+        args:
+        - -exc
+        - |
+          apt update
+          apt install -y libfreetype6
+          git clone deploy-repo trivia-game-deploy-exe
+          cd resource-repo
+          dotnet publish TriviaGame -o ../trivia-game-deploy-exe/client -r win-x64 -c Release
+          dotnet publish TriviaGameServer --self-contained -o ../trivia-game-deploy-exe/server -r linux-x64
+          cp TriviaGame.db ../trivia-game-deploy-exe/server/
+          cd ../trivia-game-deploy-exe
+          git config --global user.email "josh@joshuasterner.com"
+          git config --global user.name "Joshua Sterner (Automatic CI Commit)"
+          git add .
+          git commit -m "Published client and server."
+
+  - put: deploy-repo
+    params:
+      repository: trivia-game-deploy-exe
+

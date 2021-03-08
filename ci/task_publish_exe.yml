@@ -1,0 +1,18 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: "mcr.microsoft.com/dotnet/sdk"
+    tag: 3.1
+
+inputs:
+- name: resource-repo
+outputs:
+- name: "TriviaGameClient64.exe"
+- path: "resource-repo/PublishedTriviaGame/TriviaGameClient.exe"
+
+run:
+  path: bash
+  args: ["ci/deploy.sh"]
