@@ -188,6 +188,13 @@
 /processorParam:TextureFormat=Color
 /build:shuttle.png
 
+#begin small.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:small.spritefont
+
 #begin Sports.png
 /importer:TextureImporter
 /processor:TextureProcessor

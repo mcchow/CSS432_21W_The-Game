@@ -406,6 +406,14 @@ namespace TriviaGameClient
                     Position = new Vector2(40 + 130 * temp, 200),
                     Text = cat
                 };
+                if( cat == "Entertainment")
+                {
+                    tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("small"))
+                    {
+                        Position = new Vector2(40 + 130 * temp, 200),
+                        Text = cat
+                    };
+                }
                 //tempbutton.PenColour = Color.Black;
                 void CatClick(object sender, System.EventArgs e)
                 {
