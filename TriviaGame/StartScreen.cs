@@ -311,7 +311,7 @@ namespace TriviaGameClient
             /////////////////////////////////////////////////////////////////////////////////////////////////////
             ///start page
             ///
-            background = content.Load<Texture2D>("stars"); // change these names to the names of your images
+            background = content.Load<Texture2D>("backgroundworld"); // change these names to the names of your images
             startButton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(350, 200),
@@ -401,9 +401,9 @@ namespace TriviaGameClient
             int temp = 0;
             foreach (string cat in CardCat)
             {
-                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(100, 50 + 60 * temp),
+                    Position = new Vector2(100 + 60 * temp, 400),
                     Text = cat
                 };
                 void CatClick(object sender, System.EventArgs e)
