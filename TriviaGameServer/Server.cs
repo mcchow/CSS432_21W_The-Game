@@ -275,7 +275,7 @@ namespace TriviaGameServer
                     if (room.playerTwo != null)
                     {
                         room.playerTwo.Room = null;
-                        room.playerOne.Connection.Send(new OpponentQuit());
+                        room.playerTwo.Connection.Send(new OpponentQuit());
                     }
                     Room removed;
                     rooms.TryRemove(room.roomID, out removed);
