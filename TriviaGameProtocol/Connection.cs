@@ -11,7 +11,8 @@ namespace TriviaGameProtocol
         private Socket socket;
         private Protocol protocol;
         private bool runningRecieveLoop;
-        private volatile bool shouldStayConnected;
+        private readonly object connectionLock = new object();
+        private bool shouldStayConnected;
         public Connection(Socket socket, Protocol protocol)
         {
             if (socket == null)
@@ -25,7 +26,10 @@ namespace TriviaGameProtocol
                 throw new ArgumentNullException("protocol");
             }
             this.protocol = protocol;
-            shouldStayConnected = true;
+            lock (connectionLock)
+            {
+                shouldStayConnected = true;
+            }
         }
 
         public Socket GetSocket()
@@ -35,7 +39,10 @@ namespace TriviaGameProtocol
 
         public void Disconnect()
         {
-            shouldStayConnected = false;
+            lock (connectionLock)
+            {
+                shouldStayConnected = false;
+            }
             if (!socket.Connected)
             {
                 return;
@@ -118,7 +125,17 @@ namespace TriviaGameProtocol
             System.Buffer.BlockCopy(messageID, 0, messageBytes, 4, messageID.Length);
             messageBytes[4 + messageID.Length] = (byte)'\0';
             System.Buffer.BlockCopy(messageBody, 0, messageBytes, messageID.Length + 5, messageBody.Length);
-            socket.Send(messageBytes);
+            try
+            {
+                lock (connectionLock)
+                {
+                    socket.Send(messageBytes);
+                }
+            } catch
+            {
+                Console.WriteLine("shouldStayConnected = " + shouldStayConnected);
+                throw;
+            }
         }
     }
 }
