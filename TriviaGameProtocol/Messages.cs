@@ -639,22 +639,8 @@ namespace TriviaGameProtocol
 
     public class Unregister : MessageType
     {
-        public string name;
-
-        public Unregister()
-        {
-
-        }
-
-        public Unregister(string name)
-        {
-            this.name = name;
-        }
-
         public override void FromBytes(byte[] bytes)
-        {
-            name = Encoding.UTF8.GetString(bytes);
-        }
+        {}
 
         public override string MessageID()
         {
@@ -663,7 +649,7 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            return Encoding.UTF8.GetBytes(name);
+            return new byte[0];
         }
 
         public override bool Equals(object obj)
@@ -672,10 +658,10 @@ namespace TriviaGameProtocol
             {
                 return false;
             }
-
-            Unregister unReg = (Unregister)obj;
-
-            return name.Equals(unReg.name);
+            else
+            {
+                return true;
+            }
         }
     }
 
