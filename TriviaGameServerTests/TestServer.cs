@@ -199,10 +199,13 @@ namespace TriviaGameServerTests
                 .send(1, new Register("p2"))
                 .send(new CreateRoom())
                 .test();
-            seq.send(1, new JoinRoom(getRooms()[0].roomID))
+            RoomEntry room = getRooms()[0];
+            seq.send(1, new JoinRoom(room.roomID))
+                .expect<AskForCard>()
+                .expect<NextPlayerTurn>(1)
                 .send(2, new Register("p3"))
-                .send(2, new JoinRoom(getRooms()[0].roomID))
-                .expect<RoomUnavailable>()
+                .send(2, new JoinRoom(room.roomID))
+                .expect<RoomUnavailable>(2)
                 .test();
         }
 
@@ -227,22 +230,27 @@ namespace TriviaGameServerTests
                 .send(new Register("p1"))
                 .send(new CreateRoom())
                 .test();
-            RoomEntry room0 = getRooms()[0];
-            seq
-                .send(1, new Register("p2"))
+            seq.send(1, new Register("p2"))
                 .send(1, new CreateRoom())
                 .test();
             List<RoomEntry> roomEntrys = getRooms();
-            RoomEntry room1 = roomEntrys[0];
-            if (room1.roomID == room0.roomID)
+            RoomEntry room0;
+            RoomEntry room1;
+            if (roomEntrys[0].player1.Equals("p1"))
             {
+                room0 = roomEntrys[0];
                 room1 = roomEntrys[1];
+            } else
+            {
+                room0 = roomEntrys[1];
+                room1 = roomEntrys[0];
             }
-            seq.send(2, new JoinRoom(room0.roomID))
+            seq.send(2, new Register("p3"))
+                .send(2, new JoinRoom(room0.roomID))
                 .expect<AskForCard>(0)
                 .expect<NextPlayerTurn>(2)
                 .send(2, new LeaveRoom())
-                .send(new JoinRoom(roomEntrys[1].roomID))
+                .send(2, new JoinRoom(room1.roomID))
                 .expect<AskForCard>(1)
                 .expect<NextPlayerTurn>(2)
                 .test();

@@ -261,6 +261,10 @@ namespace TriviaGameServer
                 {
                     Player player;
                     connectionMap.TryGetValue(c, out player);
+                    if (player == null)
+                    {
+                        return;
+                    }
                     Room room = player.Room;
                     if (room == null)
                     {
