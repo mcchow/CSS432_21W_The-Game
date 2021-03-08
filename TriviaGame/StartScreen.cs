@@ -119,6 +119,7 @@ namespace TriviaGameClient
             //send user name
             Register tempuser = new Register();
             tempuser.Name = textField.Text;
+            playername = textField.Text;
             connection.Send(tempuser);
             stage = "meun";
         }
