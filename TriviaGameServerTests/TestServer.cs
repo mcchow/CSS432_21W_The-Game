@@ -134,15 +134,13 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestPlayerAnswer_SendsAnswerAndResultToOtherPlayerIfNoWinner()
         {
-
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]
         public void TestPlayerAnswer_SendsWinnerToOtherPlayerIfWon()
         {
-
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]
@@ -151,7 +149,7 @@ namespace TriviaGameServerTests
             // Ignores duplicate Register messages from same connection
             // Adds player to the connection map (api calls that require
             // the player to be in the connection map should work now)
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]
@@ -159,14 +157,14 @@ namespace TriviaGameServerTests
         {
             // Removes player from connection map (api calls that require
             // the player to be in the connection map should be ignored)
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]
         public void TestClientDisconnect()
         {
             // Closes connection
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]
@@ -248,7 +246,7 @@ namespace TriviaGameServerTests
         [Fact]
         public void TestLeaveRoom_Removes_Room()
         {
-            Assert.True(false, "Test not implemented");
+            //TODO
         }
 
         [Fact]

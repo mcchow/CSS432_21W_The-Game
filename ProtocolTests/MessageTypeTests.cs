@@ -25,7 +25,7 @@ namespace TriviaGameProtocolTests
             testByteConversion(new Register(str));
             testByteConversion(new JoinRoom(str));
             testByteConversion(new Winner(str));
-            testByteConversion(new Unregister(str));
+            testByteConversion(new RoomUnavailable(str));
         }
 
         [Theory]
