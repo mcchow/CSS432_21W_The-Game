@@ -25,6 +25,8 @@ namespace TriviaGameServer
         public const int MAX_CONCURRENT_CONNECTIONS = 1024;
         private readonly object serverLock = new object();
         private bool mListening = false;
+        private CancellationTokenSource cancellationTokenSource;
+        private CancellationToken cancellationToken;
         public bool listening
         {
             get
@@ -56,6 +58,8 @@ namespace TriviaGameServer
             connectionPool = new SemaphoreSlim(MAX_WAITING_CONNECTIONS, MAX_WAITING_CONNECTIONS);
             connectionMap = new ConcurrentDictionary<Connection, Player>();
             rooms = new ConcurrentDictionary<string, Room>();
+            cancellationTokenSource = new CancellationTokenSource();
+            cancellationToken = cancellationTokenSource.Token;
         }
 
         private void SetupProtocol()
@@ -172,6 +176,7 @@ namespace TriviaGameServer
                 player.Room = room;
                 room.TryJoin(player);
                 string roomID = Guid.NewGuid().ToString();
+                room.roomID = roomID;
                 rooms.TryAdd(roomID, room);
             });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
@@ -216,6 +221,7 @@ namespace TriviaGameServer
                 }
                 room.TryLeave(player);
                 player.Room = null;
+                room.playerTwo.Room = null;
                 if (room.playerOne != null)
                 {
                     room.playerOne.Connection.Send(new OpponentQuit());
@@ -224,6 +230,8 @@ namespace TriviaGameServer
                 {
                     room.playerOne.Connection.Send(new OpponentQuit());
                 }
+                Room removed;
+                rooms.TryRemove(room.roomID, out removed);
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
@@ -249,11 +257,7 @@ namespace TriviaGameServer
         public void shutdown()
         {
             listening = false;
-            if (connectionMap.IsEmpty)
-            {
-                // Prevent listening thread from continuing to block if no connections are open.
-                connectionPool.Release();
-            }
+            cancellationTokenSource.Cancel();
             foreach (Connection c in connectionMap.Keys)
             {
                 c.Disconnect();
@@ -269,7 +273,13 @@ namespace TriviaGameServer
             while (listening)
             {
                 socket.BeginAccept(OnConnect, null);
-                connectionPool.Wait();
+                try
+                {
+                    connectionPool.Wait(cancellationToken);
+                } catch
+                {
+                    break;
+                }
             }
         }
         static void Main(string[] args)
