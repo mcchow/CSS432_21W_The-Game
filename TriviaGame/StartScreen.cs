@@ -214,7 +214,7 @@ namespace TriviaGameClient
         {
             stage = "startScreen";
             //send room
-            connection.Send(new Unregister(playername));
+            connection.Send(new Unregister());
         }
 
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
