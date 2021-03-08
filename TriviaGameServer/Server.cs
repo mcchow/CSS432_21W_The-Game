@@ -265,15 +265,16 @@ namespace TriviaGameServer
                     {
                         return;
                     }
-                    room.TryLeave(player);
                     player.Room = null;
-                    room.playerTwo.Room = null;
+                    room.TryLeave(player);
                     if (room.playerOne != null)
                     {
+                        room.playerOne.Room = null;
                         room.playerOne.Connection.Send(new OpponentQuit());
                     }
                     if (room.playerTwo != null)
                     {
+                        room.playerTwo.Room = null;
                         room.playerOne.Connection.Send(new OpponentQuit());
                     }
                     Room removed;
