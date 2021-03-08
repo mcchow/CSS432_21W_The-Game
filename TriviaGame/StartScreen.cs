@@ -267,7 +267,7 @@ namespace TriviaGameClient
         public void roomUnavailable(RoomUnavailable a, Connection b)
         {
             stage = "meun";
-            ErrorText = "Room is Full";
+            ErrorText = a.Reason;
             Errorcount = 100;
         }
 
