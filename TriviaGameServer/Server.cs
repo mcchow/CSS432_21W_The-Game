@@ -45,7 +45,6 @@ namespace TriviaGameServer
 
         private ConcurrentDictionary<Connection, Player> connectionMap;
         private ConcurrentDictionary<string, Room> rooms;
-        // database connection here? is thread safe?
 
         public Server(int port, QuestionSource qsrc)
         {
