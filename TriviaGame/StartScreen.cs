@@ -517,6 +517,7 @@ namespace TriviaGameClient
                 case "cat":
                     //protocol.RegisterMessageHandler<RoomEntry>(updateplayerlist);??????
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
+                    spriteBatch.DrawString(contentManager.Load<SpriteFont>("normal"), "Please pick a category", new Vector2(300, 70), Color.Violet);
                     LeaveGameButton.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
                     foreach (Button button in CatButton)
