@@ -62,81 +62,110 @@ namespace TriviaGameServer
             cancellationTokenSource = new CancellationTokenSource();
             cancellationToken = cancellationTokenSource.Token;
         }
-
+        private void handleConnectionClosedException(ConnectionClosedException e)
+        {
+            Player player = null;
+            connectionMap.TryGetValue(e.Connection(), out player);
+            if (player == null)
+            {
+                Console.WriteLine("Connection to unknown player closed");
+            }
+            else
+            {
+                Console.WriteLine("Connection to Player: " + player.Name + "Closed");
+            }
+        }
         private void SetupProtocol()
         {
             protocol = new Protocol();
             protocol.RegisterMessageHandler<ChosenCard>((ChosenCard card, Connection c) =>
             {
-                Console.WriteLine("Chose Card: " + card.Card);
+                try
+                {
+                    Console.WriteLine("Chose Card: " + card.Card);
 
-                Question question = questionSource.GetQuestion(card.Card);
-                TriviaQuestion Q = question.question;
-                char corAns = question.answer;
+                    Question question = questionSource.GetQuestion(card.Card);
+                    TriviaQuestion Q = question.question;
+                    char corAns = question.answer;
 
-                // save the correct answer into the room using the player's connection
-                Player player = null;
-                connectionMap.TryGetValue(c, out player);
-                Room room = player.Room;
-                room.answer = corAns;
-                room.cardCategory = card.Card;
-                c.Send(Q);
+                    // save the correct answer into the room using the player's connection
+                    Player player = null;
+                    connectionMap.TryGetValue(c, out player);
+                    Room room = player.Room;
+                    room.answer = corAns;
+                    room.cardCategory = card.Card;
+                    c.Send(Q);
+                }
+                catch (ConnectionClosedException e)
+                {
+                    Console.Write("In ChosenCard Handler: ");
+                    handleConnectionClosedException(e);
+                }
             });
             protocol.RegisterMessageHandler<PlayerAnswer>((PlayerAnswer msg, Connection c) =>
             {
-                Player player = null;
-                connectionMap.TryGetValue(c, out player);
-                Room room = player.Room;
-
-                RoomPlayer roomPlayer = room.playerOne == player ? RoomPlayer.PlayerOne : RoomPlayer.PlayerTwo;
-
-                if (room == null || room.WhosTurn != roomPlayer)
+                try
                 {
-                    return;
-                }
+                    Player player = null;
+                    connectionMap.TryGetValue(c, out player);
+                    Room room = player.Room;
 
-                //TODO perhaps game rule logic should be moved into Room?
-                if (msg.playerAns == room.answer)
-                {
-                    player.Points++;
-                    player.CollectedCards.Add(room.cardCategory);
-                    if (player.CollectedCards.Count >= 6)
+                    RoomPlayer roomPlayer = room.playerOne == player ? RoomPlayer.PlayerOne : RoomPlayer.PlayerTwo;
+
+                    if (room == null || room.WhosTurn != roomPlayer)
                     {
-                        Winner winner = new Winner();
-                        winner.winner = player.Name;
-                        room.playerOne.Connection.Send(winner);
-                        room.playerTwo.Connection.Send(winner);
                         return;
                     }
-                }
-                else
-                {
-                    // set next player's turn
-                    room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
-                }
 
-                AnswerAndResult answerAndResult = new AnswerAndResult();
-                answerAndResult.correctAnswer = room.answer;
-                answerAndResult.whosTurn = roomPlayer == RoomPlayer.PlayerTwo ? 1 : 2;
-                answerAndResult.numCards = player.Points;
-                
-                room.playerOne.Connection.Send(answerAndResult);
-                room.playerTwo.Connection.Send(answerAndResult);
-                if (msg.playerAns == room.answer)
-                {
-                    // got it right, get to choose another category
-                    c.Send(new AskForCard());
-                } else
-                {
-                    // send opponent request for category choice
-                    if (roomPlayer == RoomPlayer.PlayerOne)
+                    //TODO perhaps game rule logic should be moved into Room?
+                    if (msg.playerAns == room.answer)
                     {
-                        room.playerTwo.Connection.Send(new AskForCard());
+                        player.Points++;
+                        player.CollectedCards.Add(room.cardCategory);
+                        if (player.CollectedCards.Count >= 6)
+                        {
+                            Winner winner = new Winner();
+                            winner.winner = player.Name;
+                            room.playerOne.Connection.Send(winner);
+                            room.playerTwo.Connection.Send(winner);
+                            return;
+                        }
                     }
                     else
                     {
-                        room.playerOne.Connection.Send(new AskForCard());
+                        // set next player's turn
+                        room.WhosTurn = roomPlayer == RoomPlayer.PlayerOne ? RoomPlayer.PlayerTwo : RoomPlayer.PlayerOne;
                     }
+
+                    AnswerAndResult answerAndResult = new AnswerAndResult();
+                    answerAndResult.correctAnswer = room.answer;
+                    answerAndResult.whosTurn = roomPlayer == RoomPlayer.PlayerTwo ? 1 : 2;
+                    answerAndResult.numCards = player.Points;
+
+                    room.playerOne.Connection.Send(answerAndResult);
+                    room.playerTwo.Connection.Send(answerAndResult);
+                    if (msg.playerAns == room.answer)
+                    {
+                        // got it right, get to choose another category
+                        c.Send(new AskForCard());
+                    }
+                    else
+                    {
+                        // send opponent request for category choice
+                        if (roomPlayer == RoomPlayer.PlayerOne)
+                        {
+                            room.playerTwo.Connection.Send(new AskForCard());
+                        }
+                        else
+                        {
+                            room.playerOne.Connection.Send(new AskForCard());
+                        }
+                    }
+                }
+                catch (ConnectionClosedException e)
+                {
+                    Console.Write("In PlayerAnswer Handler: ");
+                    handleConnectionClosedException(e);
                 }
 
             });
@@ -155,7 +184,7 @@ namespace TriviaGameServer
             protocol.RegisterMessageHandler<ClientDisconnect>((ClientDisconnect msg, Connection c) =>
             {
                 Player player = null;
-
+                
                 // check if player in connection map, if so remove
                 if (connectionMap.TryGetValue(c, out player))
                 {
@@ -166,91 +195,122 @@ namespace TriviaGameServer
             });
             protocol.RegisterMessageHandler<CreateRoom>((CreateRoom req, Connection c) =>
             {
-                Player player = null;
-                connectionMap.TryGetValue(c, out player);
-                if (player == null)
+                try
                 {
-                    return;
-                }
+                    Player player = null;
+                    connectionMap.TryGetValue(c, out player);
+                    if (player == null)
+                    {
+                        return;
+                    }
 
-                Room room = new Room();
-                player.Room = room;
-                room.TryJoin(player);
-                string roomID = Guid.NewGuid().ToString();
-                room.roomID = roomID;
-                rooms.TryAdd(roomID, room);
+                    Room room = new Room();
+                    player.Room = room;
+                    room.TryJoin(player);
+                    string roomID = Guid.NewGuid().ToString();
+                    room.roomID = roomID;
+                    rooms.TryAdd(roomID, room);
+                }
+                catch (ConnectionClosedException e)
+                {
+                    Console.Write("In CreateRoom Handler: ");
+                    handleConnectionClosedException(e);
+                }
             });
             protocol.RegisterMessageHandler<JoinRoom>((JoinRoom req, Connection c) =>
             {
-                Room room;
-                if (!rooms.ContainsKey(req.RoomID))
+                try
                 {
-                    return;
-                }
+                    Room room;
+                    if (!rooms.ContainsKey(req.RoomID))
+                    {
+                        return;
+                    }
 
-                room = rooms[req.RoomID];
-                
-                Player player = null;
-                connectionMap.TryGetValue(c, out player);
-                if (player == null)
+                    room = rooms[req.RoomID];
+
+                    Player player = null;
+                    connectionMap.TryGetValue(c, out player);
+                    if (player == null)
+                    {
+                        return;
+                    }
+
+                    if (!room.TryJoin(player))
+                    {
+                        c.Send(new RoomFull());
+                        return;
+                    }
+
+                    player.Room = room;
+
+                    room.WhosTurn = RoomPlayer.PlayerOne;
+
+                    room.playerOne.Connection.Send(new AskForCard()); // player one goes first
+                    room.playerTwo.Connection.Send(new NextPlayerTurn(1, 0));
+                } catch (ConnectionClosedException e)
                 {
-                    return;
+                    Console.Write("In JoinRoom Handler: ");
+                    handleConnectionClosedException(e);
                 }
-
-                if (!room.TryJoin(player))
-                {
-                    c.Send(new RoomFull());
-                    return;
-                }
-
-                player.Room = room;
-
-                room.WhosTurn = RoomPlayer.PlayerOne;
-
-                room.playerOne.Connection.Send(new AskForCard()); // player one goes first
-                room.playerTwo.Connection.Send(new NextPlayerTurn(1, 0));
             });
 
             protocol.RegisterMessageHandler<LeaveRoom>((LeaveRoom req, Connection c) =>
             {
-                Player player;
-                connectionMap.TryGetValue(c, out player);
-                Room room = player.Room;
-                if (room == null)
+                try
                 {
-                    return;
+                    Player player;
+                    connectionMap.TryGetValue(c, out player);
+                    Room room = player.Room;
+                    if (room == null)
+                    {
+                        return;
+                    }
+                    room.TryLeave(player);
+                    player.Room = null;
+                    room.playerTwo.Room = null;
+                    if (room.playerOne != null)
+                    {
+                        room.playerOne.Connection.Send(new OpponentQuit());
+                    }
+                    if (room.playerTwo != null)
+                    {
+                        room.playerOne.Connection.Send(new OpponentQuit());
+                    }
+                    Room removed;
+                    rooms.TryRemove(room.roomID, out removed);
                 }
-                room.TryLeave(player);
-                player.Room = null;
-                room.playerTwo.Room = null;
-                if (room.playerOne != null)
+                catch (ConnectionClosedException e)
                 {
-                    room.playerOne.Connection.Send(new OpponentQuit());
+                    Console.Write("In LeaveRoom Handler: ");
+                    handleConnectionClosedException(e);
                 }
-                if (room.playerTwo != null)
-                {
-                    room.playerOne.Connection.Send(new OpponentQuit());
-                }
-                Room removed;
-                rooms.TryRemove(room.roomID, out removed);
             });
             protocol.RegisterMessageHandler<ListRoomsRequest>((ListRoomsRequest req, Connection c) =>
             {
-                RoomEntry roomEntry = new RoomEntry();
-                foreach (KeyValuePair<string, Room> i in rooms)
+                try
                 {
-                    roomEntry.roomID = i.Key;
-                    roomEntry.player1 = "";
-                    roomEntry.player2 = "";
-                    if (i.Value.playerOne != null)
+                    RoomEntry roomEntry = new RoomEntry();
+                    foreach (KeyValuePair<string, Room> i in rooms)
                     {
-                        roomEntry.player1 = i.Value.playerOne.Name;
+                        roomEntry.roomID = i.Key;
+                        roomEntry.player1 = "";
+                        roomEntry.player2 = "";
+                        if (i.Value.playerOne != null)
+                        {
+                            roomEntry.player1 = i.Value.playerOne.Name;
+                        }
+                        if (i.Value.playerTwo != null)
+                        {
+                            roomEntry.player2 = i.Value.playerTwo.Name;
+                        }
+                        c.Send(roomEntry);
                     }
-                    if (i.Value.playerTwo != null)
-                    {
-                        roomEntry.player2 = i.Value.playerTwo.Name;
-                    }
-                    c.Send(roomEntry);
+                }
+                catch (ConnectionClosedException e)
+                {
+                    Console.Write("In ListRoomsRequest Handler: ");
+                    handleConnectionClosedException(e);
                 }
             });
         }

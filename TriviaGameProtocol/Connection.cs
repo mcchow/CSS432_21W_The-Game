@@ -6,6 +6,22 @@ using System.Net;
 
 namespace TriviaGameProtocol
 {
+    public class ConnectionClosedException : Exception
+    {
+        private Connection mConnection;
+        public ConnectionClosedException() : base("Connection Closed.")
+        {
+
+        }
+        public ConnectionClosedException(Connection c) : base("Connection Closed.")
+        {
+            mConnection = c;
+        }
+        public Connection Connection()
+        {
+            return mConnection;
+        }
+    }
     public class Connection
     {
         private Socket socket;
@@ -134,7 +150,7 @@ namespace TriviaGameProtocol
             } catch
             {
                 Console.WriteLine("shouldStayConnected = " + shouldStayConnected);
-                throw;
+                throw new ConnectionClosedException(this);
             }
         }
     }
