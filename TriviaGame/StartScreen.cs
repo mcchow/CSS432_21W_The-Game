@@ -425,9 +425,9 @@ namespace TriviaGameClient
             for (int i = 0; i < 4; i++)
             {
                 String name = String.Format("player {0}", i);
-                Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
+                Button tempbutton = new Button(content.Load<Texture2D>("Buttonw"), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(120, 150 + 70 * i),
+                    Position = new Vector2(120, 200 + 50 * i),
                     Text = name
                 };
                 //when ans click
@@ -448,19 +448,19 @@ namespace TriviaGameClient
                 ansButtons.Add(tempbutton);
                 tempbutton = new Button(content.Load<Texture2D>("Buttong"), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(100, 100 + 70 * i),
+                    Position = new Vector2(120, 200 + 50 * i),
                     Text = name
                 };
                 ansButtonsg.Add(tempbutton);
                 tempbutton = new Button(content.Load<Texture2D>("Buttonr"), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(100, 100 + 70 * i),
+                    Position = new Vector2(120, 200 + 50 * i),
                     Text = name
                 };
                 ansButtonsr.Add(tempbutton);
             }
             
-            QuestionBox = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"))
+            QuestionBox = new Button(content.Load<Texture2D>("Question"), content.Load<SpriteFont>("normal"))
             {
                 Position = new Vector2(50, 60),
                 Text = Question
