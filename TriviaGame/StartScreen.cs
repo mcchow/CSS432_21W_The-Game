@@ -403,9 +403,10 @@ namespace TriviaGameClient
             {
                 Button tempbutton = new Button(content.Load<Texture2D>(cat), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(100 + 60 * temp, 400),
+                    Position = new Vector2(40 + 130 * temp, 200),
                     Text = cat
                 };
+                //tempbutton.PenColour = Color.Black;
                 void CatClick(object sender, System.EventArgs e)
                 {
                     //do somthing with server
@@ -426,7 +427,7 @@ namespace TriviaGameClient
                 String name = String.Format("player {0}", i);
                 Button tempbutton = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"))
                 {
-                    Position = new Vector2(100, 100 + 70 * i),
+                    Position = new Vector2(120, 150 + 70 * i),
                     Text = name
                 };
                 //when ans click
