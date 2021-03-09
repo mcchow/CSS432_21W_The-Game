@@ -27,11 +27,10 @@ jobs:
         file: resource-repo/ci/task_run_tests.yml
         vars:
           test_path: "resource-repo/TriviaGameClientTests"
-    - try:
-        task: run-server-tests
-        file: resource-repo/ci/task_run_tests.yml
-        vars:
-          test_path: "resource-repo/TriviaGameServerTests"
+    - task: run-server-tests
+      file: resource-repo/ci/task_run_tests.yml
+      vars:
+        test_path: "resource-repo/TriviaGameServerTests"
     - task: run-protocol-tests
       file: resource-repo/ci/task_run_tests.yml
       vars:
