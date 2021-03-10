@@ -198,7 +198,7 @@ namespace TriviaGameClient
                 connection.Send(test);
             }
 
-            Button tempbutton2 = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"), contentManager.Load<SoundEffect>("hover"))
+            Button tempbutton2 = new Button(contentManager.Load<Texture2D>("Button"), contentManager.Load<SpriteFont>("normal"), contentManager.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(650, 65 + 40 * roomnum),
                 Text = "Join"
