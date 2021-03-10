@@ -228,7 +228,7 @@ namespace TriviaGameClient
         {
             CorrectAns = a.correctAnswer-97;
             points = a.numCards;
-            if(a.whosTurn == playerid)
+            if(a.whosTurn != playerid)
             PointBox.Text = "Score" + a.numCards.ToString();
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
