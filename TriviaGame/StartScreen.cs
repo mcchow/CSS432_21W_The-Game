@@ -544,6 +544,7 @@ namespace TriviaGameClient
                     spriteBatch.DrawString(contentManager.Load<SpriteFont>("normal"), "Please pick a category", new Vector2(300, 70), Color.Violet);
                     LeaveGameButton.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
+                    PointBox1.Draw(gameTime, spriteBatch);
                     foreach (Button button in CatButton)
                     {
                         button.Draw(gameTime, spriteBatch);
@@ -552,6 +553,7 @@ namespace TriviaGameClient
                 case "play":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     PointBox.Draw(gameTime, spriteBatch);
+                    PointBox1.Draw(gameTime, spriteBatch);
                     LeaveGameButton.Draw(gameTime, spriteBatch);
                     if (CorrectAns == -1)
                         for (int i = 0; i < 4; i++)
@@ -592,11 +594,13 @@ namespace TriviaGameClient
                     LeaveGameButton.Draw(gameTime, spriteBatch);
                     waitingtext.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
+                    PointBox1.Draw(gameTime, spriteBatch);
                     break;
                 case "result":
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
+                    PointBox1.Draw(gameTime, spriteBatch);
                     winlosetext.Draw(gameTime, spriteBatch);
                     break;
                 default:
