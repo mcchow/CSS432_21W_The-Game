@@ -549,7 +549,8 @@ namespace TriviaGameClient
                     PointBox1.Draw(gameTime, spriteBatch);
                     foreach (Button button in CatButton)
                     {
-                        button.Draw(gameTime, spriteBatch);
+                        if (remaincard.Contains(button.Text))
+                            button.Draw(gameTime, spriteBatch);
                     }
                     break;
                 case "play":
@@ -645,6 +646,7 @@ namespace TriviaGameClient
                     LeaveGameButton.Update(gameTime);
                     foreach (Button button in CatButton)
                     {
+                        if(remaincard.Contains(button.Text))
                         button.Update(gameTime);
                     }
                     break;
