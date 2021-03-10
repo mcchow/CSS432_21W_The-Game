@@ -12,6 +12,24 @@ namespace TriviaGameServer
         public int Points;
         public Connection Connection;
         public HashSet<string> CollectedCards;
+        
+
+        public HashSet<string> UncollectedCards
+        {
+            get
+            {
+                string[] allCards = { "History", "Art", "Science", "Geography", "Sports", "Entertainment" };
+                HashSet<string> cards = new HashSet<string>();
+                foreach (string i in allCards)
+                {
+                    if (!CollectedCards.Contains(i))
+                    {
+                        cards.Add(i);
+                    }
+                }
+                return cards;
+            }
+        }
         public Player()
         {
             Room = null;

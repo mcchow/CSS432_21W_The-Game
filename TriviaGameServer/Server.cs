@@ -138,7 +138,7 @@ namespace TriviaGameServer
                     //TODO perhaps game rule logic should be moved into Room?
                     if (msg.playerAns == room.answer)
                     {
-                        player.Points++;
+                        player.Points = player.CollectedCards.Count;
                         player.CollectedCards.Add(room.cardCategory);
                         if (player.CollectedCards.Count >= 6)
                         {
@@ -146,6 +146,19 @@ namespace TriviaGameServer
                             winner.winner = player.Name;
                             room.playerOne.Connection.Send(winner);
                             room.playerTwo.Connection.Send(winner);
+
+                            player.Room = null;
+                            room.TryLeave(player);
+                            if (room.playerOne != null)
+                            {
+                                room.playerOne.Room = null;
+                            }
+                            if (room.playerTwo != null)
+                            {
+                                room.playerTwo.Room = null;
+                            }
+                            Room removed;
+                            rooms.TryRemove(room.roomID, out removed);
                             return;
                         }
                     }
@@ -165,18 +178,18 @@ namespace TriviaGameServer
                     if (msg.playerAns == room.answer)
                     {
                         // got it right, get to choose another category
-                        c.Send(new AskForCard());
+                        c.Send(new AskForCard(player.UncollectedCards));
                     }
                     else
                     {
                         // send opponent request for category choice
                         if (roomPlayer == RoomPlayer.PlayerOne)
                         {
-                            room.playerTwo.Connection.Send(new AskForCard());
+                            room.playerTwo.Connection.Send(new AskForCard(room.playerTwo.UncollectedCards));
                         }
                         else
                         {
-                            room.playerOne.Connection.Send(new AskForCard());
+                            room.playerOne.Connection.Send(new AskForCard(room.playerOne.UncollectedCards));
                         }
                     }
                 }
@@ -287,7 +300,7 @@ namespace TriviaGameServer
 
                     room.WhosTurn = RoomPlayer.PlayerOne;
 
-                    room.playerOne.Connection.Send(new AskForCard()); // player one goes first
+                    room.playerOne.Connection.Send(new AskForCard(room.playerOne.UncollectedCards)); // player one goes first
                     room.playerTwo.Connection.Send(new NextPlayerTurn(1, 0));
                 } catch (ConnectionClosedException e)
                 {

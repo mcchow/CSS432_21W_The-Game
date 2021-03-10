@@ -6,8 +6,30 @@ namespace TriviaGameProtocol
 {
     public class AskForCard : MessageType
     {
+        public List<string> cards;
+
+        public AskForCard()
+        {
+            cards = new List<string>();
+        }
+
+        public AskForCard(HashSet<string> cards)
+        {
+            this.cards = new List<string>();
+            foreach (string i in cards)
+            {
+                this.cards.Add(i);
+            }
+        }
+
         public override void FromBytes(byte[] bytes)
         {
+            string bigString = Encoding.UTF8.GetString(bytes);
+            string[] splitString = bigString.Split("\0");
+            foreach (string i in splitString)
+            {
+                cards.Add(i);
+            }
         }
 
         public override string MessageID()
@@ -17,7 +39,19 @@ namespace TriviaGameProtocol
 
         public override byte[] ToBytes()
         {
-            return new byte[0];
+            int byteCount = 0;
+            foreach (string i in cards)
+            {
+                byteCount += UTF8Encoding.UTF8.GetBytes(i).Length + 1;
+            }
+            byte[] bytes = new byte[byteCount];
+            int idx = 0;
+            foreach(string i in cards)
+            {
+                UTF8Encoding.UTF8.GetBytes(i).CopyTo(bytes, idx);
+                idx += UTF8Encoding.UTF8.GetBytes(i).Length + 1;
+            }
+            return bytes;
         }
 
         public override bool Equals(object obj)
