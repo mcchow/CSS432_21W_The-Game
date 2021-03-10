@@ -28,6 +28,7 @@ namespace TriviaGameClient
         /// </summary>
         private bool gofirst = false;
         private string stage = "startScreen";
+        private int playerid = -1;
         //make const value on time in game
         /// <summary>
         /// Start page content
@@ -172,9 +173,6 @@ namespace TriviaGameClient
         public Connection connection;
         public Protocol protocol;
         //updater
-        public void updateCorans(AnswerAndResult a , Connection b) {
-            CorrectAns = a.correctAnswer-97;// case char to int, -97, lazy chasing
-        }
 
         public void updateRoomList(RoomEntry a, Connection b)
         {
@@ -230,6 +228,7 @@ namespace TriviaGameClient
         {
             CorrectAns = a.correctAnswer-97;
             points = a.numCards;
+            if(a.whosTurn == playerid)
             PointBox.Text = "Score" + a.numCards.ToString();
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
@@ -509,6 +508,7 @@ namespace TriviaGameClient
                     textField.Draw(gameTime, spriteBatch);
                     break;
                 case "meun":
+                    playerid = 1;
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     unregisterButton.Draw(gameTime, spriteBatch);
                     CreatelobbyButton.Draw(gameTime, spriteBatch);
@@ -517,6 +517,7 @@ namespace TriviaGameClient
                     break;
                 case "lobby":
                     gofirst = false;
+                    playerid = 2;
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     for (int i = 0; i < roomnum; i++)
