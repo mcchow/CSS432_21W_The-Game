@@ -58,7 +58,7 @@ namespace TriviaGameClient
         //just a place holder, do not have any action with the button
         private List<Button> roomlist = new List<Button>();
         private int numroom = 2;
-        private List<string> remaincard;
+        private List<string> remaincard = new List<string>();
 
         /// <summary>
         /// room
