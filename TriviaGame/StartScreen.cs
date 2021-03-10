@@ -130,9 +130,9 @@ namespace TriviaGameClient
         {
             stage = "wait";
             points = 0;
-            PointBox.Text = "Player 1:" + points.ToString();
-            PointBox1.Text = "Player 2:" + points.ToString();
-            waitingtext.Text = "Waiting for another player to Join";
+            PointBox.Text = "You:" + points.ToString();
+            PointBox1.Text = "Opponent:" + points.ToString();
+            waitingtext.Text = "Waiting for Opponent to Join";
             CreateRoom createRoom = new CreateRoom();
             connection.Send(createRoom);
         }
@@ -142,8 +142,8 @@ namespace TriviaGameClient
             roomlist.Clear();
             JoinroomButtons.Clear();
             points = 0;
-            PointBox.Text = "Player 1:" + points.ToString();
-            PointBox1.Text = "Player 2:" + points.ToString();
+            PointBox.Text = "You:" + points.ToString();
+            PointBox1.Text = "Opponent:" + points.ToString();
             roomnum = 0;
             connection.Send(new ListRoomsRequest());
             stage = "lobby";
@@ -180,8 +180,8 @@ namespace TriviaGameClient
         {
             roomnum++;
             points = 0;
-            PointBox.Text = "Player 1:" + points.ToString();
-            PointBox1.Text = "Player 2:" + points.ToString();
+            PointBox.Text = "You:" + points.ToString();
+            PointBox1.Text = "Opponent:" + points.ToString();
             String name = a.player1 + "'s Room";
             Button tempbutton = new Button(contentManager.Load<Texture2D>("roombox"), contentManager.Load<SpriteFont>("normal"), contentManager.Load<SoundEffect>("hover"))
             {
@@ -222,7 +222,7 @@ namespace TriviaGameClient
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
             points = a.curNumCards;
-            PointBox.Text = "Player 1:" + a.curNumCards.ToString();
+            PointBox.Text = "You:" + a.curNumCards.ToString();
             //PointBox1.Text = "Score:" + points.ToString();
             waitingtext.Text = "Wait for " + a.whosTurn + " to Answer the question...";
             stage = "wait";
@@ -233,9 +233,9 @@ namespace TriviaGameClient
             CorrectAns = a.correctAnswer-97;
             points = a.numCards;
             if(a.whosTurn != playerid)
-            PointBox.Text = "Player 1:" + a.numCards.ToString();
+            PointBox.Text = "You:" + a.numCards.ToString();
             else
-            PointBox1.Text = "Player 2:" + a.numCards.ToString();
+            PointBox1.Text = "Opponent:" + a.numCards.ToString();
         }
         public void updateQuestion(TriviaQuestion a, Connection b)
         {
@@ -256,7 +256,7 @@ namespace TriviaGameClient
             ansButtonsg[3].Text = a.optionD;
             ansButtonsr[3].Text = a.optionD;
             stage = "play";
-            waitingtext.Text = "Wait for another player to Answer the question...";
+            waitingtext.Text = "Wait for Opponent to Answer the question...";
         }
         public void askForCard(AskForCard a, Connection b)
         {
@@ -494,7 +494,7 @@ namespace TriviaGameClient
             waitingtext = new Button(content.Load<Texture2D>("roombox"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
                 Position = new Vector2(50, 60),
-                Text = "Waiting for other player..."
+                Text = "Waiting for Opponent..."
             };
             //////////////////////////////////////////////////////////////////////////////////////////////////////////
             ///result
