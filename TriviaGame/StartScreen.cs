@@ -243,7 +243,19 @@ namespace TriviaGameClient
             ans = -1;
             CorrectAns = -1;
             count = 0;
-            QuestionBox.Text = a.question;
+            string TempQuestion = a.question;
+            if(a.question.Length > 70)
+            {
+                String tempstr = TempQuestion.Substring(70);
+                int replace = tempstr.IndexOf(' ');
+                char[] temparray = TempQuestion.ToCharArray();
+                if (temparray[50 + replace] == ' ')
+                {
+                    temparray[50 + replace] = '\n';
+                }
+                TempQuestion = new string(temparray);
+            }
+            QuestionBox.Text = TempQuestion;
             ansButtons[0].Text = a.optionA;
             ansButtonsg[0].Text = a.optionA;
             ansButtonsr[0].Text = a.optionA;
