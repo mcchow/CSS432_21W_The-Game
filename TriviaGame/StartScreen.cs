@@ -58,6 +58,7 @@ namespace TriviaGameClient
         //just a place holder, do not have any action with the button
         private List<Button> roomlist = new List<Button>();
         private int numroom = 2;
+        private List<string> remaincard;
 
         /// <summary>
         /// room
@@ -260,6 +261,7 @@ namespace TriviaGameClient
         }
         public void askForCard(AskForCard a, Connection b)
         {
+            
             stage = "cat";
         }
         public void opponentQuit(OpponentQuit a, Connection b)
