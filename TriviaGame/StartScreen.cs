@@ -251,6 +251,7 @@ namespace TriviaGameClient
             ansButtonsg[3].Text = a.optionD;
             ansButtonsr[3].Text = a.optionD;
             stage = "play";
+            waitingtext.Text = "Wait for another player to Answer the question...";
         }
         public void askForCard(AskForCard a, Connection b)
         {
