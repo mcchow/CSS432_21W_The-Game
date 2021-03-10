@@ -536,7 +536,6 @@ namespace TriviaGameClient
                     }
                     break;
                 case "play":
-
                     spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     PointBox.Draw(gameTime, spriteBatch);
                     LeaveGameButton.Draw(gameTime, spriteBatch);
@@ -575,11 +574,13 @@ namespace TriviaGameClient
                     QuestionBox.Draw(gameTime, spriteBatch);
                     break;
                 case "wait":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     LeaveGameButton.Draw(gameTime, spriteBatch);
                     waitingtext.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
                     break;
                 case "result":
+                    spriteBatch.Draw(background, new Rectangle(0, 0, 800, 480), Color.White);
                     lobbybackmeunButton.Draw(gameTime, spriteBatch);
                     PointBox.Draw(gameTime, spriteBatch);
                     winlosetext.Draw(gameTime, spriteBatch);
