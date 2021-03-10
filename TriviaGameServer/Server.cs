@@ -72,6 +72,25 @@ namespace TriviaGameServer
             else
             {
                 Console.WriteLine("Connection to Player: " + player.Name + "Closed");
+
+                Room room = player.Room;
+                if (room != null)
+                {
+                    player.Room = null;
+                    room.TryLeave(player);
+                    if (room.playerOne != null)
+                    {
+                        room.playerOne.Room = null;
+                        room.playerOne.Connection.Send(new OpponentQuit());
+                    }
+                    if (room.playerTwo != null)
+                    {
+                        room.playerTwo.Room = null;
+                        room.playerTwo.Connection.Send(new OpponentQuit());
+                    }
+                    Room removed;
+                    rooms.TryRemove(room.roomID, out removed);
+                }
             }
         }
         private void SetupProtocol()
@@ -188,6 +207,28 @@ namespace TriviaGameServer
                 if (connectionMap.TryGetValue(c, out player))
                 {
                     connectionMap.TryUpdate(c, null, player);
+                }
+
+                if (player != null)
+                {
+                    Room room = player.Room;
+                    if (room != null)
+                    {
+                        player.Room = null;
+                        room.TryLeave(player);
+                        if (room.playerOne != null)
+                        {
+                            room.playerOne.Room = null;
+                            room.playerOne.Connection.Send(new OpponentQuit());
+                        }
+                        if (room.playerTwo != null)
+                        {
+                            room.playerTwo.Room = null;
+                            room.playerTwo.Connection.Send(new OpponentQuit());
+                        }
+                        Room removed;
+                        rooms.TryRemove(room.roomID, out removed);
+                    }
                 }
 
                 c.Disconnect();
