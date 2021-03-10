@@ -282,7 +282,7 @@ namespace TriviaGameClient
         }
         public void winner(Winner a, Connection b)
         {
-            winlosetext.Text = a.winner + "wins the game";
+            winlosetext.Text = a.winner + " wins the game";
             stage = "result";
         }
         public void roomUnavailable(RoomUnavailable a, Connection b)
