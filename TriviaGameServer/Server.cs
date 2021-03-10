@@ -138,8 +138,8 @@ namespace TriviaGameServer
                     //TODO perhaps game rule logic should be moved into Room?
                     if (msg.playerAns == room.answer)
                     {
-                        player.Points = player.CollectedCards.Count;
                         player.CollectedCards.Add(room.cardCategory);
+                        player.Points = player.CollectedCards.Count;
                         if (player.CollectedCards.Count >= 6)
                         {
                             Winner winner = new Winner();
