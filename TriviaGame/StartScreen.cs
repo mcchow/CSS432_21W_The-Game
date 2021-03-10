@@ -222,7 +222,7 @@ namespace TriviaGameClient
         public void nextPlayerTurn(NextPlayerTurn a, Connection b)
         {
             points = a.curNumCards;
-            PointBox.Text = "Score:" + points.ToString();
+            PointBox.Text = "Score for player 1:" + a.numCards.ToString();
             //PointBox1.Text = "Score:" + points.ToString();
             waitingtext.Text = "Wait for " + a.whosTurn + " to Answer the question...";
             stage = "wait";
@@ -316,7 +316,7 @@ namespace TriviaGameClient
 
             PointBox1 = new Button(content.Load<Texture2D>("Button"), content.Load<SpriteFont>("normal"), content.Load<SoundEffect>("hover"))
             {
-                Position = new Vector2(390, 10),
+                Position = new Vector2(500, 10),
                 Text = ""
             };
 
