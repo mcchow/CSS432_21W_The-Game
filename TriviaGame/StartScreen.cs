@@ -273,7 +273,7 @@ namespace TriviaGameClient
         }
         public void askForCard(AskForCard a, Connection b)
         {
-            
+            remaincard = a.cards;
             stage = "cat";
         }
         public void opponentQuit(OpponentQuit a, Connection b)
@@ -561,7 +561,7 @@ namespace TriviaGameClient
                     PointBox1.Draw(gameTime, spriteBatch);
                     foreach (Button button in CatButton)
                     {
-                        //if (remaincard.Contains(button.Text))
+                        if (remaincard.Contains(button.Text))
                             button.Draw(gameTime, spriteBatch);
                     }
                     break;
@@ -658,7 +658,7 @@ namespace TriviaGameClient
                     LeaveGameButton.Update(gameTime);
                     foreach (Button button in CatButton)
                     {
-                        //if(remaincard.Contains(button.Text))
+                        if(remaincard.Contains(button.Text))
                         button.Update(gameTime);
                     }
                     break;
