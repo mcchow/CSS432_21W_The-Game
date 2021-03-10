@@ -85,6 +85,7 @@ namespace TriviaGameClient
         protected override void OnExiting(object sender, EventArgs args)
         {
             base.OnExiting(sender, args);
+            connection.Send(new ClientDisconnect());
             connection.Disconnect();
             connectionThread.Join();
         }

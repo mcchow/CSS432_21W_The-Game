@@ -256,10 +256,46 @@ namespace TriviaGameServerTests
                 .test();
         }
 
-        [Fact]
-        public void TestLeaveRoom_Removes_Room()
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        public void TestLeaveRoom_During_Game_Removes_Room(int leaveID)
         {
-            //TODO
+            seq.send(new Register("p1"))
+                .send(1, new Register("p2"))
+                .send(new CreateRoom())
+                .test();
+            List<RoomEntry> rooms = getRooms();
+            Assert.Equal(1, rooms.Count);
+            string roomID = getRooms()[0].roomID;
+            seq.send(1, new JoinRoom(roomID))
+                .expect<AskForCard>()
+                .expect<NextPlayerTurn>(1)
+                .send(leaveID, new LeaveRoom())
+                .expect<OpponentQuit>(1 - leaveID)
+                .send(new ListRoomsRequest())
+                .test();
+        }
+
+        [Theory]
+        [InlineData(0)]
+        [InlineData(1)]
+        public void TestClientDisconnect_During_Game_Removes_Room(int leaveID)
+        {
+            seq.send(new Register("p1"))
+                .send(1, new Register("p2"))
+                .send(new CreateRoom())
+                .test();
+            List<RoomEntry> rooms = getRooms();
+            Assert.Equal(1, rooms.Count);
+            string roomID = getRooms()[0].roomID;
+            seq.send(1, new JoinRoom(roomID))
+                .expect<AskForCard>()
+                .expect<NextPlayerTurn>(1)
+                .send(leaveID, new ClientDisconnect())
+                .expect<OpponentQuit>(1 - leaveID)
+                .send(1 - leaveID, new ListRoomsRequest())
+                .test();
         }
 
         [Fact]
@@ -272,6 +308,7 @@ namespace TriviaGameServerTests
                 .clearRecieved()
                 .test();
         }
+
     }
 
 }
