@@ -45,5 +45,10 @@ namespace TriviaGameServer
             Connection = c;
             CollectedCards = new HashSet<string>();
         }
+
+        public void resetCards()
+        {
+            CollectedCards.Clear();
+        }
     }
 }

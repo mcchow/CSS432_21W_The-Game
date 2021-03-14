@@ -262,6 +262,7 @@ namespace TriviaGameServer
                     {
                         return;
                     }
+                    player.resetCards();
 
                     Room room = new Room();
                     player.Room = room;
@@ -295,6 +296,7 @@ namespace TriviaGameServer
                     {
                         return;
                     }
+                    player.resetCards();
 
                     if (!room.TryJoin(player))
                     {
