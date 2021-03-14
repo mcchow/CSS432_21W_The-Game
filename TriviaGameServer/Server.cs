@@ -81,12 +81,18 @@ namespace TriviaGameServer
                     if (room.playerOne != null)
                     {
                         room.playerOne.Room = null;
-                        room.playerOne.Connection.Send(new OpponentQuit());
+                        try {
+                            room.playerOne.Connection.Send(new OpponentQuit());
+                        } catch (ConnectionClosedException) {
+                        }
                     }
                     if (room.playerTwo != null)
                     {
                         room.playerTwo.Room = null;
-                        room.playerTwo.Connection.Send(new OpponentQuit());
+                        try {
+                            room.playerTwo.Connection.Send(new OpponentQuit());
+                        } catch (ConnectionClosedException) {
+                        }
                     }
                     Room removed;
                     rooms.TryRemove(room.roomID, out removed);
